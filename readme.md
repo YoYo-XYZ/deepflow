@@ -14,10 +14,6 @@ DeepFlow is a framework for solving PDEs like Navier-Stokes equations using **Ph
 * **GPU accererlation**: Enable GPU for faster training.
 
 
-![Steady-State Channel Flow Simulation Result](examples/cylinder_flow_steady/cylinder_flow_steady.png)
-
-
-
 ## Install DeepFlow
 ```
 pip install deepflow
