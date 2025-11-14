@@ -64,7 +64,7 @@ class NetworkTrainer():
         return loss_hist_dict
     
     @staticmethod
-    def train_adam(model, learning_rate, epochs, calc_loss, print_every=50, thereshold_loss=None, device= 'cpu'):
+    def train_adam(model, learning_rate, epochs, calc_loss, print_every=50, threshold_loss=None, device= 'cpu'):
         model = copy.deepcopy(model.to(device))
         if device == 'cuda' and sys.platform.startswith('linux'):
             model = torch.compile(model, mode="reduce-overhead", fullgraph=False, dynamic=True, backend="inductor")
@@ -82,13 +82,13 @@ class NetworkTrainer():
             if epoch % print_every == 0:
                 model.show_updates()
 
-            if model.loss_history_dict['total_loss'][-1] < thereshold_loss:
-                print(f"Training stopped at epoch {epoch} as total loss reached the threshold of {thereshold_loss}.")
+            if model.loss_history_dict['total_loss'][-1] < threshold_loss:
+                print(f"Training stopped at epoch {epoch} as total loss reached the threshold of {threshold_loss}.")
                 break
         return model.to(device)
 
     @staticmethod
-    def train_lbfgs(model, epochs, calc_loss, print_every=50, thereshold_loss=None, device= 'cpu'):
+    def train_lbfgs(model, epochs, calc_loss, print_every=50, threshold_loss=None, device= 'cpu'):
         model = copy.deepcopy(model.to(device))
         if device == 'cuda' and sys.platform.startswith('linux'):
             model = torch.compile(model, mode="reduce-overhead", fullgraph=False, dynamic=True, backend="inductor")
@@ -116,8 +116,8 @@ class NetworkTrainer():
             if epoch % print_every == 0:
                 model.show_updates()
             
-            if thereshold_loss is not None and model.loss_history_dict['total_loss'][-1] < thereshold_loss:
-                print(f"Training stopped at epoch {epoch} as total loss reached the threshold of {thereshold_loss}.")
+            if threshold_loss is not None and model.loss_history_dict['total_loss'][-1] < threshold_loss:
+                print(f"Training stopped at epoch {epoch} as total loss reached the threshold of {threshold_loss}.")
                 break
         
         return model

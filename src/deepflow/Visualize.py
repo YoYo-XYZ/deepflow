@@ -131,7 +131,7 @@ class Visualizer(VisualizeTemplate):
 
         return fig
 
-    def plot_loss_curve(self, log_scale=False, linewidth = 0.1):
+    def plot_loss_curve(self, log_scale=False, linewidth = 0.5):
         fig, ax = plt.subplots()
         ax.plot(self.data_dict['total_loss'], label = 'total_loss', linewidth = linewidth)
         ax.plot(self.data_dict['bc_loss'], label = 'bc_loss', linewidth = linewidth)

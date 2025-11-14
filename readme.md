@@ -17,7 +17,7 @@ DeepFlow is a user-friendly framework for solving partial differential equations
 - [Examples](#examples)
 - [Contributing](#contributing)
 - [License](#license)
-- [**Future Milestones**](#future-milestones)
+- [**DeepFlow Milestones**](#future-milestones)
 
 ## Features
 
@@ -78,7 +78,11 @@ domain.area_list[0].define_pde(Physics.NVS_nondimensional(U=0.0001, L=1, mu=0.00
 domain.sampling_random_r([100, 100, 200, 100], [5000])
 domain.show_coordinates(display_conditions=True)  # Display collocation points
 ```
+![alt text](examples/quickstart/setup.png)
 
+Next, sample the initial collocation points. This will automatically create training data according to the defined physics.
+
+![alt text](examples/quickstart/collocation_points.png)
 ### 2. Define the Model and Loss
 
 Create the PINN model and a function to calculate the loss. This function handles the random sampling of points for each training step.
@@ -140,7 +144,8 @@ area_eval.sampling_area(500, 100)
 colorplot_area_2d = area_eval.plot_data_on_geometry({'u': 'rainbow'})
 loss_history = area_eval.plot_loss_curve(log_scale=True)
 ```
-
+![alt text](examples/quickstart/flow_field.png)
+![alt text](examples/quickstart/loss_curve.png)
 This will produce a visual representation of the steady-state channel flow and the loss curve of the trained PINN.
 
 ## Examples
@@ -158,7 +163,7 @@ Each example includes Jupyter notebooks and data files.
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
-## Future Milestones
+## DeepFlow Milestones
 
 1. Complete support for **time-dependent solutions**
 2. Enhanced customization options in **visualization tools**
