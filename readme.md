@@ -1,163 +1,111 @@
-# PINNforFluidDynamics: A Physics-Informed Neural Network Framework for Navier–Stokes Equations
+# DeepFlow
+[![PyPI version](https://badge.fury.io/py/deepflow.svg)](https://badge.fury.io/py/deepflow)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This repository contains a Python package for solving 2D steady and unsteady Navier-Stokes equations using **Physics-Informed Neural Networks (PINNs)**. The framework is built with **PyTorch** and is designed to handle fluid flow problems in domains with *user-defined geometries*.
+DeepFlow is a framework for solving PDEs like Navier-Stokes equations using **Physics-Informed Neural Networks (PINNs)**.
 
-![Steady-State Channel Flow Simulation Result](examples/channel_flow_steady/channel_flow_steady.png)
----
+## Features
+* **CFD-solver style**: Straightforward workflow similar to commercial CFD software.
+* **Physics attached Geometry**: Explicitly attach Physics and PINN models to geometries.
+* **Built-in Visualization**: Comes with tools to evaluate and plot results.
+* **Flexible Domain Definition**: Easily define complex geometries.
+* **GPU accererlation**: Enable GPU for faster training.
 
-## Key Features
 
-* **Multiple PDEs**: *steady* and *transient* *incompressible* Navier-Stokes equations, Fourier Heat equations
-* **Flexible Domain Definition**: Easily define complex 2D physical boundaries for the simulation.
-* **Built-in Visualization**: Comes with tools to plot results, loss evolution, and residual distributions.
-* **Powered by PyTorch**: Leverages automatic differentiation for calculating gradients required by the PDEs.
 ![Steady-State Channel Flow Simulation Result](examples/cylinder_flow_steady/cylinder_flow_steady.png)
 ---
 
 ## Quick Start
 
-Here’s a quick example of how to simulate a steady-state channel flow.
+Here’s a quick example of how to simulate a steady channel flow.
 
-### 1. Define the Physical Space and Boundary Conditions
+### 1. Define the Geometry and Physics Constraint
 
-First, define the boundaries of your domain (e.g., a channel from x=0 to 10, and y=0 to 1). Then, define the boundary conditions and the interior PDE domain.
+First, define the boundaries of your domain. Then, attach the boundary conditions and the governing PDE to the geometric entities.
 
 ```python
-import torch
-from PINNs import Bound, PhysicsBound, PINN, NVS, NetworkTrainer, Visualization
+from deepflow import PINN, Geometry, Physics, NetworkTrainer, Evaluate, ProblemDomain
 
-# Define the channel geometry boundaries
-bound_list = [
-    Bound([0, 10], lambda x: 1 * torch.ones_like(x), True),  # Top wall
-    Bound([0, 10], lambda x: 0 * torch.ones_like(x), False), # Bottom wall
-    Bound([0.00001, 0.99999], lambda y: 0 * torch.ones_like(y), False, ref_axis='y'), # Inlet
-    Bound([0, 1], lambda y: 10 * torch.ones_like(y), True, ref_axis='y') # Outlet
-]
+# Define the area and bound
+rectangle = Geometry.rectangle([0,5], [0,1])
+bound_list = rectangle.bound_list
+area_list = [rectangle]
 
-# Define the physics at the boundaries
-physics_cond_list = [
-    {'u': 0.0, 'v': 0.0},      # Top wall: No-slip
-    {'u': 0.0, 'v': 0.0},      # Bottom wall: No-slip
-    {'u': 0.1, 'v': 0.0},      # Inlet: Uniform inflow
-    {'p': 0.0}                 # Outlet: Zero pressure
-]
+domain = ProblemDomain(rectangle.bound_list, rectangle, device='cpu')
+# Define the physics at the geometry
+domain.bound_list[0].define_bc({'u':0,'v':0})
+domain.bound_list[1].define_bc({'u':0,'v':0})
+domain.bound_list[2].define_bc({'u': 1, 'v': 0})
+domain.bound_list[3].define_bc({'p':0})
+domain.area_list[0].define_pde(Physics.NVS_nondimensional(U=0.0001, L=1, mu=0.001, rho=1000))
 
-# Create a list of boundary condition objects and define the PDE area
-boundary_conditions_list = [
-    PhysicsBound.define_boundary_condition(bound, cond) 
-    for bound, cond in zip(bound_list, physics_cond_list)
-]
-area_physics_bound = PhysicsBound.define_pde_area(
-    bound_list=bound_list, 
-    sampling_range_x=[0, 10], 
-    sampling_range_y=[0, 1], 
-    PDE_class=NVS()
-)
+# Sampling initial collocation points
+domain.sampling_random_r([100, 100, 200, 100], [5000])
+domain.show_coordinates(display_conditions = True)
 ```
 
-
-### 2. Define the Model and Loss Function
+### 2. Define the Model and Loss
 
 Create the PINN model and a function to calculate the loss. This function will handle the random sampling of points for each training step.
 
 ```python
 # Initialize the PINN model
-model = PINN(width=64, length=4, is_steady=True)
+model0 = PINN(width=40, length=4)
 
-# Define sampling resolutions and the random sampling function
-sampling_resolution_list = [200, 200, 40, 40]
-def random_sampling():
-    for i, bc in enumerate(boundary_conditions_list):
-        bc.sampling_collocation_points(sampling_resolution_list[i], random=True)
-    area_physics_bound.sampling_collocation_points(100, random=True)
-
-# Define the loss calculation function
-loss_fn = torch.nn.MSELoss()
+# Design the steps to calculate loss
+iterations = 0
 def calc_loss(model):
-    # Re-sample the collocation points at each step
-    random_sampling()
+    global iterations
+    iterations += 1
 
-    # Boundary Condition Loss
-    bc_loss = sum(bc.calc_loss(model, loss_fn) for bc in boundary_conditions_list)
+    # Add collocation points using based on residual
+    if iterations % 500==0:
+        domain.sampling_RAR([40, 40, 80, 40], [1000], model)
+
+    # BC Loss
+    bc_loss = 0.0
+    for bound in domain.bound_list:
+        bc_loss += bc.calc_loss(model)
 
     # PDE Loss
-    pde_loss = area_physics_bound.calc_loss(model)
+    pde_loss = 0.0
+    for area in domain.area_list:
+        pde_loss += area.calc_loss(model)
 
+    # Total Loss
     total_loss = bc_loss + pde_loss
-    return {"bc_loss": bc_loss, "pde_loss": pde_loss, "total_loss": total_loss}
-```
 
+    return {"bc_loss": bc_loss, "pde_loss": pde_loss, "total_loss": total_loss} # MUST RETURN IN THIS FORMAT
+```
 
 ### 3. Train the Model
 
-Train the model using the Adam optimizer. The notebook demonstrates training in stages with different learning rates; here we show a single stage for simplicity.
+Train the model using the Adam optimizer.
 
 ```python
 # Train the model
-model = NetworkTrainer.train_adam(
-    model=model, 
-    calc_loss=calc_loss, 
-    learning_rate=0.001, 
-    epochs=1000, 
-    print_every=100
-)
-
-# For better results, continue training with a smaller learning rate
-model = NetworkTrainer.train_adam(
-    model=model, 
-    calc_loss=calc_loss, 
-    learning_rate=0.0005, 
-    epochs=5000, 
-    print_every=100
+model1 = NetworkTrainer.train_adam(
+    model=model0,
+    calc_loss=calc_loss,
+    learning_rate=0.001,
+    epochs=2000,
+    print_every=250,
+    thereshold_loss=0.05,
+    device='cpu'
 )
 ```
-
-### 3. Visualize the Results
-After training, you can easily visualize the flow field, pressure, and training metrics.
+### 4. Visualize the Results
+After training, you can easily visualize the flow field and training history.
 ```python
-# Create visualization object
-visual_model = Visualization(area_physics_bound, model)
-visual_model.sampling_plot_points(400, 40) # Sample points for plotting (400 in x, 40 in y)
-visual_model.process_model()
+area_eval = Evaluate(model1, domain.area_list[0])
+area_eval.sampling_area(500, 100)
+colorplot_area_2d = area_eval.plot_data_on_geometry({'u': 'rainbow'})
+loss_history = area_eval.plot_loss_curve(log_scale=True)
 
-# Create and save the color plot of the results
-cmap_dict = {
-    'velocity_magnitude': 'rainbow',
-    'p': 'RdBu'
-}
-colorplot = visual_model.plotcolor_select(cmap_dict)
-colorplot.savefig('channel_flow_steady.png')
 ```
-This will produce a visual representation of the steady-state channel flow.
-
-The training progress, including the convergence of boundary condition (BC) loss and PDE loss, can be tracked.
-
-You can also analyze the distribution of the PDE residuals to assess how well the network is satisfying the governing equations across the domain.
+This will produce a visual representation of the steady-state channel flow and loss curve of trained PINN.
 
 ---
+## Examples
 
-## Installation
-To use this package, you'll need Python 3 and the following libraries:
-
-* **PyTorch**
-
-* **Matplotlib**
-
-* **NumPy**
-
-Clone the repository and ensure the PINNs directory is in your Python path.
-
----
-
-## Project Structure
-The framework is organized into several modules:
-
-Network.py: Defines the PINN neural network architecture and the NetworkTrainer.
-
-Physics.py: Contains the NVS class, which computes the residuals of the Navier-Stokes equations.
-
-Geometry.py: Includes the Bound and PhysicsBound classes for defining geometry and sampling points.
-
-Visualize.py: Provides the Visualization class for plotting results.
-
-Utility.py: Contains helper functions, such as gradient calculation.
+You can find more detailed examples, including flow around a cylinder and other complex geometries, in the `examples/` directory.
