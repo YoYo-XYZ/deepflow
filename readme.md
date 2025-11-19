@@ -1,4 +1,4 @@
-# DeepFlow
+# DeepFlow: Physics-Informed Neural Networks for Fluid Dynamics
 
 [![PyPI version](https://badge.fury.io/py/deepflow.svg)](https://badge.fury.io/py/deepflow)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
