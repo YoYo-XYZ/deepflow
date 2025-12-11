@@ -3,6 +3,29 @@ from .Utility import *
 import copy
 from .PhysicsInformedAttach import PhysicsAttach
 
+def circle(x, y, r):
+    def func_up(X_tensor):
+        return (r**2 - (X_tensor-x)**2)**0.5 + y
+    def func_down(X_tensor):
+        return -(r**2 - (X_tensor-x)**2)**0.5 + y
+
+    def func_n_x_up(n):
+        return x + r*torch.cos(n)
+    def func_n_y_up(n):
+        return y + r*torch.sin(n)
+    def func_n_x_down(n):
+        return x + r*torch.cos(n+torch.pi)
+    def func_n_y_down(n):
+        return y + r*torch.sin(n+torch.pi)
+    
+    bound_up = Bound([x - r, x + r], func_up, ref_axis='x')
+    bound_up.define_func([0,torch.pi], func_n_x_up, func_n_y_up, ref_axis='t')
+
+    bound_down = Bound([x - r, x + r], func_down, ref_axis='x')
+    bound_down.define_func([0,torch.pi], func_n_x_down, func_n_y_down, ref_axis='t')
+
+    return Area([bound_up, bound_down])
+
 def rectangle(x_range:list , y_range:list):
     return polygon([x_range[0], y_range[0]], [x_range[1], y_range[0]], [x_range[1], y_range[1]], [x_range[0], y_range[1]])
 
@@ -37,15 +60,18 @@ class Bound(PhysicsAttach):
         elif ref_axis == 'y':
             ax = 1
         else:
+            self.parameterized = True
             ax = 2
         self.funcs[ax] = list(func)
         self.ranges[ax] = sorted(range_)
+        self._postprocess()
 
     def __init__(self, range_, *func , ref_axis = 'x'):
         super().__init__()
         self.ranges = {}
         self.funcs = {}
         self.coords = {}
+        self.parameterized = False
         if ref_axis == 'x' :
             self.ax = 0
         elif ref_axis == 'y':
@@ -58,7 +84,6 @@ class Bound(PhysicsAttach):
             self.axes_sec.remove(self.ax)
 
         self.ranges[self.ax] = sorted(range_)
-        # print(self.ranges)
         self.funcs[self.ax] = list(func) #func is list
         self.reject_above = True
         self._postprocess()
@@ -75,17 +100,23 @@ class Bound(PhysicsAttach):
             self.centers[ax] = self.ranges[ax][0] + self.lengths[ax]/2
 
     def sampling_line(self, n_points, random=False):
+        ax = 2 if self.parameterized else self.ax
+        self.coords = {}
         if random:
-            self.coords[self.ax] = torch.empty(n_points).uniform_(self.ranges[self.ax][0], self.ranges[self.ax][1])
+            self.coords[ax] = torch.empty(n_points).uniform_(self.ranges[ax][0], self.ranges[ax][1])
         else:
-            self.coords[self.ax] = torch.linspace(self.ranges[self.ax][0], self.ranges[self.ax][1], n_points)
-
-        for i, ax in enumerate(self.axes_sec): self.coords[ax] = self.funcs[self.ax][i](self.coords[self.ax])
-        return (self.coords[ax] for ax in self.axes)
+            self.coords[ax] = torch.linspace(self.ranges[ax][0], self.ranges[ax][1], n_points)
+        if self.parameterized:
+            self.coords[0] = self.funcs[2][0](self.coords[ax])
+            self.coords[1] = self.funcs[2][1](self.coords[ax])
+        else:
+            for i, axis in enumerate(self.axes_sec):
+                self.coords[axis] = self.funcs[ax][i](self.coords[ax])
+        return self.coords[0], self.coords[1]
 
     def mask_area(self, *x: torch.Tensor):
         reject_masks = []
-        self.ranges[self.ax] = sorted(self.ranges[self.ax])
+        self.ranges[self.ax] = self.ranges[self.ax]
         reject_masks.append((x[self.ax] > self.ranges[self.ax][0]) & (x[self.ax] < self.ranges[self.ax][1]))
         for sec_ax in self.axes_sec:
             if self.reject_above:
@@ -100,6 +131,13 @@ class Bound(PhysicsAttach):
     
     def __str__(self):
         return f'axis: {self.ax} reject above: {self.reject_above}, ranges: {self.ranges}, centers: {self.centers}, lengths: {self.lengths}'
+    
+    def show(self):
+        import matplotlib.pyplot as plt
+        X, Y = self.sampling_line(1000)
+        plt.plot(X.numpy(), Y.numpy())
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.show()
 
 class Area(PhysicsAttach):
     dim = 2
@@ -169,8 +207,8 @@ class Area(PhysicsAttach):
     def sampling_area(self, n_points_square, random=False):
         if random:
             points = torch.empty(n_points_square, 2)
-            points[:, 0].uniform_(self.ranges[0][0]+1e-6, self.ranges[0][1]-1e-6)  # x values
-            points[:, 1].uniform_(self.ranges[1][0]+1e-6, self.ranges[1][1]-1e-6)  # y values
+            points[:, 0].uniform_(self.ranges[0][0], self.ranges[0][1])  # x values
+            points[:, 1].uniform_(self.ranges[1][0], self.ranges[1][1])  # y values
             X = points[:, 0]  # x-coordinates
             Y = points[:, 1]  # y-coordinates
         else:
@@ -179,9 +217,13 @@ class Area(PhysicsAttach):
                 n_points_square_y = n_points_square[1]
             else:
                 n_points_square_x = n_points_square_y = n_points_square
-            X_range = torch.linspace(self.ranges[0][0]+1e-6, self.ranges[0][1]-1e-6, n_points_square_x)
-            Y_range = torch.linspace(self.ranges[1][0]+1e-6, self.ranges[1][1]-1e-6, n_points_square_y)
-            X, Y = torch.meshgrid(X_range, Y_range)
+            X_range = torch.linspace(self.ranges[0][0], self.ranges[0][1], n_points_square_x)
+            X_range[0] += 1e-6
+            X_range[-1] -= 1e-6
+            Y_range = torch.linspace(self.ranges[1][0], self.ranges[1][1], n_points_square_y)
+            Y_range[0] += 1e-6
+            Y_range[-1] -= 1e-6
+            X, Y = torch.meshgrid(X_range, Y_range, indexing='ij')
             X = X.reshape(-1)  # x-coordinates
             Y = Y.reshape(-1)  # y-coordinates
 
@@ -200,6 +242,19 @@ class Area(PhysicsAttach):
         self.X, self.Y = X[~self.reject_mask], Y[~self.reject_mask]
         self.sampled_area = (self.X, self.Y)
         return self.X, self.Y
+
+    def sampling_lines(self, *n_points_per_line, random=False):
+        output_x = []
+        output_y = []
+        if len(n_points_per_line) == 1:
+            n_points_per_line = [n_points_per_line[0]] * len(self.bound_list)
+        for i, bound in enumerate(self.bound_list):
+            X,Y = bound.sampling_line(n_points_per_line[i], random=random)
+            output_x.append(X)
+            output_y.append(Y)
+        output_x = [torch.stack(output_x, dim=0)]
+        output_y = [torch.stack(output_y, dim=0)]
+        return output_x, output_y
 
     def __sub__(self, other_area):
         bound_list = copy.deepcopy(other_area.bound_list)
@@ -220,3 +275,24 @@ class Area(PhysicsAttach):
             string += f"{i} {bound}\n"
         string += f"ranges: {self.ranges}"
         return string
+    
+    def show(self):
+        import matplotlib.pyplot as plt
+        for bound in self.bound_list:
+            X, Y = bound.sampling_line(1000)
+            plt.plot(X.numpy(), Y.numpy())
+            plt.text(bound.centers[0], bound.centers[1], f'{self.bound_list.index(bound)}')
+        for bound in self.negative_bound_list or []:
+            X, Y = bound.sampling_line(1000)
+            plt.plot(X.numpy(), Y.numpy(), color='red')
+        X, Y = self.sampling_area([100,100], random=False)
+        plt.scatter(X.numpy(), Y.numpy(), s=0.05, color='green')
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.show()
+        return X, Y
+    
+def shape(bound_list: list[Bound]):
+    return Area(bound_list)
+
+def curve(range_, *func , ref_axis = 'x'):
+    return Bound(range_, *func , ref_axis = ref_axis)
