@@ -138,3 +138,6 @@ class PhysicsAttach():
         self.PDE.calc(inputs_dict = self.model_inputs | self.model_outputs)
 
 #-----------------------------------------------------------------------------------------------
+    def evaluate(self, model):
+        from .Evaluation import Evaluate
+        return Evaluate(model, self)

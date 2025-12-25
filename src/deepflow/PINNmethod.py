@@ -9,20 +9,6 @@ class ProblemDomain():
         self.area_list = area_list
         self.sampling_option = None
         self.device = device
-    
-    def _format_condition_dict(self, obj, obj_type='Bound'):
-        """Helper function to format condition dictionary for display."""
-
-        def func_to_latex(func_list):
-            v = func_list
-            return f"${str(sp.latex(v[1](sp.symbols(v[0]))))}$"
-
-        if hasattr(obj, 'condition_dict'):
-            conditions = ', '.join([f"{k}={(str(v) if isinstance(v,(float,int,HardConstraint)) else func_to_latex(v))}" for k, v in obj.condition_dict.items()])
-            return conditions
-        elif hasattr(obj, 'PDE'):
-            return f"PDE: {obj.PDE.__class__.__name__}"
-        return ""
         
     def __str__(self):
         return f"""number of bound : {len(self.bound_list)}
@@ -97,6 +83,20 @@ class ProblemDomain():
                     area.Y = Y
             area.process_coordinates(self.device)
 #------------------------------------------------------------------------------------------------
+    def _format_condition_dict(self, obj, obj_type='Bound'):
+        """Helper function to format condition dictionary for display."""
+
+        def func_to_latex(func_list):
+            v = func_list
+            return f"${str(sp.latex(v[1](sp.symbols(v[0]))))}$"
+
+        if hasattr(obj, 'condition_dict'):
+            conditions = ', '.join([f"{k}={(str(v) if isinstance(v,(float,int,HardConstraint)) else func_to_latex(v))}" for k, v in obj.condition_dict.items()])
+            return conditions
+        elif hasattr(obj, 'PDE'):
+            return f"PDE: {obj.PDE.__class__.__name__}"
+        return ""
+    
     def save_coordinates(self):
         for i, area in enumerate(self.area_list):
             area.saved_X = area.X.clone()
@@ -113,10 +113,12 @@ class ProblemDomain():
             bound.X = bound.saved_X.clone()
             bound.Y = bound.saved_Y.clone()
     
-    #---------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
     def _plot_items(self, items, name, get_xy, scatter_kw, text_kw, show_label=True):
         for i, obj in enumerate(items):
             x, y = get_xy(obj, i)
+            if hasattr(x, 'detach'): x = x.detach().cpu().numpy()
+            if hasattr(y, 'detach'): y = y.detach().cpu().numpy()
             plt.scatter(x, y, **scatter_kw)
             if show_label:
                 cond = self._format_condition_dict(obj, name)
