@@ -35,27 +35,23 @@ class ProblemDomain():
         , number of area : {len(self.area_list)}
         {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list)]}"""
 
-    def sampling_uniform(self, bound_sampling_res:list, area_sampling_res:list):
+    def sampling_uniform(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
         self.sampling_option = 'uniform'
-        for i, bound in enumerate(self.bound_list):
-            if bound_sampling_res[i] is not None:
-                bound.sampling_line(bound_sampling_res[i])
-                bound.process_coordinates()
-        for i, area in enumerate(self.area_list):
-            if area_sampling_res[i] is not None:
-                area.sampling_area(area_sampling_res[i])
-                area.process_coordinates()
+        for i, res in enumerate(bound_sampling_res):
+            self.bound_list[i].sampling_line(res)
+            self.bound_list[i].process_coordinates()
+        for i, res in enumerate(area_sampling_res):
+            self.area_list[i].sampling_area(res)
+            self.area_list[i].process_coordinates()
 
-    def sampling_random_r(self, bound_sampling_res:list, area_sampling_res:list):
+    def sampling_random_r(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
         self.sampling_option = 'random_r'
-        for i, bound in enumerate(self.bound_list):
-            if bound_sampling_res[i] is not None:
-                bound.sampling_line(bound_sampling_res[i], random=True)
-                bound.process_coordinates()
-        for i, area in enumerate(self.area_list):
-            if area_sampling_res[i] is not None:
-                area.sampling_area(area_sampling_res[i], random=True)
-                area.process_coordinates()
+        for i, res in enumerate(bound_sampling_res):
+            self.bound_list[i].sampling_line(res, random=True)
+            self.bound_list[i].process_coordinates()
+        for i, res in enumerate(area_sampling_res):
+            self.area_list[i].sampling_area(res, random=True)
+            self.area_list[i].process_coordinates()
 
     def sampling_RAR(self, bound_top_k_list:list, area_top_k_list:list, model, bound_candidates_num_list:list=None, area_candidates_num_list:list=None):
         self.sampling_option = self.sampling_option + ' + RAR'
@@ -170,7 +166,7 @@ class ProblemDomain():
         if bound_sampling_res is None:
             bound_sampling_res = [int(800*(b.ranges[b.ax][1] - b.ranges[b.ax][0])) for b in self.bound_list]
         if area_sampling_res is None:
-            area_sampling_res = [[200, int(200*a.lengths[1]/a.lengths[0])] for a in self.area_list]
+            area_sampling_res = [[400, int(400*a.lengths[1]/a.lengths[0])] for a in self.area_list]
 
         def get_area_xy(area, i):
             area.sampling_area(area_sampling_res[i])
@@ -181,11 +177,11 @@ class ProblemDomain():
             return bound.X, bound.Y
 
         self._plot_items(self.area_list, "Area", get_area_xy,
-            {'s': 1, 'color': 'black', 'alpha': 0.5, 'marker': 's'},
+            {'s': 5, 'color': 'lightgrey', 'alpha': 1, 'marker': 's'},
             {'fontsize': 20, 'color': 'navy', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.2, edgecolor='none', pad=1)})
         self._plot_items(self.bound_list, "Bound", get_bound_xy,
-            {'s': 5, 'color': 'red', 'alpha': 0.5},
+            {'s':5, 'color': 'red', 'alpha': 0.2},
             {'fontsize': 16, 'color': 'darkgreen', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.4, edgecolor='none', pad=1)})
              
@@ -193,3 +189,7 @@ class ProblemDomain():
         if xlim: plt.xlim(xlim)
         if ylim: plt.ylim(ylim)
         plt.show()
+
+#-------------------------------------------------------------------------------------------------
+    def __getitem__(self, key):
+        return

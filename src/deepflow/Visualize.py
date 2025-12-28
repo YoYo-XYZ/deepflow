@@ -131,11 +131,11 @@ class Visualizer(VisualizeTemplate):
 
         return fig
 
-    def plot_loss_curve(self, log_scale=False, linewidth = 0.5, num = 3):
+    def plot_loss_curve(self, log_scale=False, linewidth = 0.5, num = 3, start=0, end=None):
         fig, ax = plt.subplots()
         options = ['total_loss', 'bc_loss', 'pde_loss']
         for i in range(num):
-            ax.plot(self.data_dict[options[i]], label = options[i], linewidth = linewidth)
+            ax.plot(self.data_dict[options[i]][start:end], label = options[i], linewidth = linewidth)
 
         if log_scale:
             ax.set_yscale("log")

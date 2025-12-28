@@ -119,19 +119,34 @@ class PINN(nn.Module):
             loss_hist_dict[key].append(val)
         return loss_hist_dict
 
-    def train_adam(self, learning_rate, epochs, calc_loss, print_every=50, threshold_loss=None):
+    def train_adam(self, learning_rate, epochs, calc_loss, has_scheduler = True, print_every=50, threshold_loss=None):
         model = copy.deepcopy(self.to(get_device()))
+        best_loss = 0.0
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+        if has_scheduler:
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer,
+                mode='min',
+                factor=0.5,
+                patience=100,
+                min_lr=1e-4,)
         try:
+            # main training loop
             for epoch in range(epochs):
                 optimizer.zero_grad()
                 loss_dict = calc_loss(model)
                 loss_dict['total_loss'].backward()
                 optimizer.step()
+                if has_scheduler:
+                    scheduler.step(loss_dict['total_loss'].item())
 
                 model.loss_history_dict = self.record_loss(
                     model.loss_history_dict, loss_dict)
+                
+                if loss_dict['total_loss'].item() < best_loss or epoch == 0:
+                    best_loss = loss_dict['total_loss'].item()
+                    best_model = copy.deepcopy(model)
 
                 if epoch % print_every == 0:
                     model.show_updates()
@@ -143,8 +158,9 @@ class PINN(nn.Module):
                     break
         except KeyboardInterrupt:
             print('Training interrupted by user.')
-            return model
-        return model
+            return model, best_model
+        print(f"Final learning rate: {optimizer.param_groups[0]['lr']}")
+        return model, best_model
     
     def train_lbfgs(self, epochs, calc_loss, print_every=50, threshold_loss=None):
         model = copy.deepcopy(self.to(get_device()))
@@ -155,7 +171,7 @@ class PINN(nn.Module):
                 loss_dict_container = {}
 
                 def closure():
-                    optimizer.zero_grad()
+                    optimizer.zero_grad(set_to_none=True)
                     loss_dict = calc_loss(model)
                     loss_dict['total_loss'].backward()
                     # Store loss_dict in the container

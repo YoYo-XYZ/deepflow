@@ -6,6 +6,11 @@ def get_device():
     global device
     return device
 
+def manual_seed(seed:int):
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)          # For current GPU
+        torch.cuda.manual_seed_all(seed)      # For all GPUs
 
 def calc_grad(y, x):
     """
@@ -19,8 +24,23 @@ def calc_grad(y, x):
         inputs=x,
         grad_outputs=torch.ones_like(y),
         retain_graph=True,
-        create_graph=True,)[0]
+        create_graph=True)[0]
     return grad
+
+def calc_grads(y_list, x_list):
+    """
+    Calculates the gradients of tensors y_list with respect to tensors x_list.
+
+    Returns:
+        tuple of torch.Tensor: The gradients of y_list with respect to x_list.
+    """
+    grads = torch.autograd.grad(
+        outputs=y_list,
+        inputs=x_list,
+        grad_outputs=torch.ones_like(y_list),
+        retain_graph=True,
+        create_graph=True)
+    return grads
 
 def to_require_grad(*tensors):
     if len(tensors) == 1:
