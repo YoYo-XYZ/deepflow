@@ -92,23 +92,22 @@ class NVS_nondimensional(PDE):
         return self.residual_fields
 
     def dimensionalize(self):
-        self.var['x'] = self.var['x'] / self.L
-        self.var['y'] = self.var['y'] / self.L
-        self.var['u'] = self.var['u'] / self.U
-        self.var['v'] = self.var['v'] / self.U
-        self.var['p'] = self.var['p'] / (self.rho*self.U**2)
+        self.var['x'] /= self.L
+        self.var['y'] /= self.L
+        self.var['u'] /= self.U
+        self.var['v'] /= self.U
+        self.var['p'] /= (self.rho*self.U**2)
         if self.var['t']:
-            self.var['t'] = self.var['t'] * self.U/self.L
+            self.var['t'] *= self.U/self.L
 
     def non_dimensionalize(self):
-        self.var['x'] = self.var['x'] * self.L
-        self.var['y'] = self.var['y'] * self.L
-        self.var['u'] = self.var['u'] * self.U
-        self.var['v'] = self.var['v'] * self.U
-        self.var['p'] = self.var['p'] * (self.rho*self.U**2)
+        self.var['x'] *= self.L
+        self.var['y'] *= self.L
+        self.var['u'] *= self.U
+        self.var['v'] *= self.U
+        self.var['p'] *= (self.rho*self.U**2)
         if self.var['t']:
-            self.var['t'] = self.var['t'] / (self.U/self.L)
-
+            self.var['t'] /= (self.U/self.L)
 class Heat(PDE):
     def __init__(self, alpha=0.01):
         super().__init__()

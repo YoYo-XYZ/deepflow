@@ -23,7 +23,6 @@ def calc_grad(y, x):
         outputs=y,
         inputs=x,
         grad_outputs=torch.ones_like(y),
-        retain_graph=True,
         create_graph=True)[0]
     return grad
 
@@ -38,7 +37,6 @@ def calc_grads(y_list, x_list):
         outputs=y_list,
         inputs=x_list,
         grad_outputs=torch.ones_like(y_list),
-        retain_graph=True,
         create_graph=True)
     return grads
 
