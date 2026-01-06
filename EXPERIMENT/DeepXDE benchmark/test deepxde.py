@@ -1,25 +1,13 @@
-import os  # Uncomment this line to disable GPU
-os.environ["DDE_BACKEND"] = "pytorch"  # Must be before importing deepxde
+
+import os
+os.environ["DDE_BACKEND"] = "pytorch"
+import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
-import deepxde as dde
-import torch
 
-print("Backend: pytorch")
-print("GPU available:", torch.cuda.is_available())
-if torch.cuda.is_available():
-    print("Device name:", torch.cuda.get_device_name(0))
-
-# Verify DeepXDE is using GPU
-try:
-    x = dde.backend.as_tensor([1.0])
-    print(f"DeepXDE tensor device: {x.device}")
-except Exception as e:
-    print(f"Could not check DeepXDE tensor device directly: {e}")
-
-rho = 1000
-mu = 0.001
-u_in = 0.0001
+rho = 1
+mu = 1
+u_in = 1
 D = 1
 L = 2
 
@@ -99,7 +87,7 @@ data = dde.data.PDE(
     [bc_wall_u, bc_wall_v, bc_inlet_u, bc_inlet_v, bc_outlet_p, bc_outlet_v],
     num_domain= 2000,
     num_boundary= 200,
-    num_test= 1000
+    num_test= 2000
 )
 
 plt.figure(figsize=(10,5))
@@ -109,7 +97,7 @@ plt.ylabel("Y")
 plt.show()
 
 # Defining the model
-net = dde.maps.FNN([2] + [40]*8 + [3], "tanh", "Glorot uniform")                     # Network starts with 2 neurons -> x,y. 5 hidden layers with 64 neurons. Last layer with 3 neurons -> u,v,p.
+net = dde.maps.FNN([2] + [64]*5 + [3], "tanh", "Glorot uniform")                     # Network starts with 2 neurons -> x,y. 5 hidden layers with 64 neurons. Last layer with 3 neurons -> u,v,p.
 
 model = dde.Model(data, net)
 
@@ -120,7 +108,7 @@ checker = dde.callbacks.ModelCheckpoint(
     "model.ckpt", save_better_only=True, period=100
 )
 
-loss_history, train_state = model.train(epochs=1000, callbacks=[checker], display_every=1)
+loss_history, train_state = model.train(epochs=2000, callbacks=[checker], display_every=1)
 
 
 # Training with L-BFGS for convergence

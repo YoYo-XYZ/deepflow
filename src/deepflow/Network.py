@@ -119,50 +119,39 @@ class PINN(nn.Module):
             loss_hist_dict[key].append(val)
         return loss_hist_dict
 
-    def train_adam(self, learning_rate, epochs, calc_loss, has_scheduler = True, print_every=50, threshold_loss=None):
+    def train_adam(self, learning_rate, epochs, calc_loss, has_scheduler = True, print_every=200, threshold_loss=None):
         model = copy.deepcopy(self.to(get_device()))
         best_loss = 0.0
-
-        optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         if has_scheduler:
-            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                optimizer,
-                mode='min',
-                factor=0.5,
-                patience=100,
-                min_lr=1e-4,)
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.5,patience=100,min_lr=1e-4,)
+            
         try:
             # main training loop
             for epoch in range(epochs):
-                optimizer.zero_grad()
+                optimizer.zero_grad(set_to_none=True)
                 loss_dict = calc_loss(model)
                 loss_dict['total_loss'].backward()
                 optimizer.step()
-                if has_scheduler:
-                    scheduler.step(loss_dict['total_loss'].item())
-
-                model.loss_history_dict = self.record_loss(
-                    model.loss_history_dict, loss_dict)
+                if has_scheduler: scheduler.step(loss_dict['total_loss'].item())
+                model.loss_history_dict = self.record_loss(model.loss_history_dict, loss_dict)
                 
+                # post data
                 if loss_dict['total_loss'].item() < best_loss or epoch == 0:
                     best_loss = loss_dict['total_loss'].item()
                     best_model = copy.deepcopy(model)
-
+                    if best_loss < threshold_loss:
+                        print(f"Training stopped at epoch {epoch} as total loss reached the threshold of {threshold_loss}.")
+                        break
                 if epoch % print_every == 0:
                     model.show_updates()
-
-                if model.loss_history_dict['total_loss'][-1] < threshold_loss:
-                    print(
-                        f"Training stopped at epoch {epoch} as total loss reached the threshold of {threshold_loss}."
-                    )
-                    break
         except KeyboardInterrupt:
             print('Training interrupted by user.')
             return model, best_model
         print(f"Final learning rate: {optimizer.param_groups[0]['lr']}")
         return model, best_model
     
-    def train_lbfgs(self, epochs, calc_loss, print_every=50, threshold_loss=None):
+    def train_lbfgs(self, epochs, calc_loss, print_every=200, threshold_loss=None):
         model = copy.deepcopy(self.to(get_device()))
         optimizer = torch.optim.LBFGS(model.parameters(), history_size=100, max_iter=20, line_search_fn="strong_wolfe")
         try:
@@ -182,17 +171,13 @@ class PINN(nn.Module):
 
                 # Retrieve the loss_dict from the container
                 loss_dict = loss_dict_container['loss_dict']
-                model.loss_history_dict = self.record_loss(
-                    model.loss_history_dict, loss_dict)
+                model.loss_history_dict = self.record_loss(model.loss_history_dict, loss_dict)
 
+                # post data
                 if epoch % print_every == 0:
                     model.show_updates()
-
-                if threshold_loss is not None and model.loss_history_dict[
-                        'total_loss'][-1] < threshold_loss:
-                    print(
-                        f"Training stopped at epoch {epoch} as total loss reached the threshold of {threshold_loss}."
-                    )
+                if threshold_loss is not None and loss_dict['total_loss'].item() < threshold_loss:
+                    print(f"Training stopped at epoch {epoch} as total loss reached the threshold of {threshold_loss}.")
                     break
         except KeyboardInterrupt:
             print('Training interrupted by user.')

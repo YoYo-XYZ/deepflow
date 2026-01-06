@@ -30,10 +30,8 @@ class ProblemDomain():
         self.sampling_option = None
         
     def __str__(self):
-        return f"""number of bound : {len(self.bound_list)}
-        {[f'{i}: {len(bound.X)}' for i, bound in enumerate(self.bound_list)]}
-        , number of area : {len(self.area_list)}
-        {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list)]}"""
+        return f"""number of bound : {[f'{i}: {len(bound.X)}' for i, bound in enumerate(self.bound_list)]}\n
+        number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list)]}"""
 
     def sampling_uniform(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
         self.sampling_option = 'uniform'
@@ -141,7 +139,7 @@ class ProblemDomain():
                 plt.text(obj.centers[0], obj.centers[1], lbl, ha='center', va='center', **text_kw)
 
     def show_coordinates(self, display_conditions=False, xlim=None, ylim=None):
-        plt.figure(figsize=(20,20))
+        plt.figure(figsize=(10,10))
         
         self._plot_items(self.area_list, "Area", lambda o, i: (o.X, o.Y),
             {'s': 5, 'color': 'black', 'alpha': 0.3},
@@ -161,7 +159,7 @@ class ProblemDomain():
         plt.show()
 
     def show_setup(self, bound_sampling_res:list=None, area_sampling_res:list=None, xlim=None, ylim=None):
-        plt.figure(figsize=(20,20))
+        plt.figure(figsize=(10,10))
         
         if bound_sampling_res is None:
             bound_sampling_res = [int(800*(b.ranges[b.ax][1] - b.ranges[b.ax][0])) for b in self.bound_list]

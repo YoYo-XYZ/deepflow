@@ -23,7 +23,14 @@ class PDE():
             loss_field += residual_field**2
         loss = torch.mean(loss_field)
         return loss
-class NVS_nondimensional(PDE):
+    
+class custom_PDE(PDE):
+    def __init__(self, func):
+        super().__init__()
+        self.func = func
+    def calc(self):
+        self.func()
+class NavierStokesSteady(PDE):
     def __init__(self, U, L, mu, rho):
         super().__init__()
         self.U = U
@@ -44,7 +51,6 @@ class NVS_nondimensional(PDE):
         """
         Calculates the residuals of the incompressible Navier-Stokes equations.
         """
-        # First-order derivatives (fewer autograd calls)
         if t is None:
             (u_x, u_y) = calc_grads(u, (x, y))
             (v_x, v_y) = calc_grads(v, (x, y))
