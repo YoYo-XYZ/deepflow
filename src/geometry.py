@@ -2,9 +2,9 @@ import copy
 from typing import List, Tuple, Callable, Optional, Union, Dict
 
 import torch
-import numpy as np # Often useful to have explicit numpy when dealing with plotting
-from .Utility import *  # Ideally, import specific functions: from .Utility import func1, func2
-from .PhysicsInformedAttach import PhysicsAttach
+
+from .utility import *
+from .physicsInformedAttach import PhysicsAttach
 
 # Constants for numerical stability
 EPS = 1e-6
@@ -129,21 +129,15 @@ class Bound(PhysicsAttach):
         return Area([self, other_bound])
     
     def __str__(self):
-        return (f'Bound(axis={self.ax}, reject_above={self.reject_above}, '
-                f'ranges={self.ranges})')
+        return (f'Bound(axis={self.ax}, reject_above={self.reject_above}, ranges={self.ranges}), centers: {self.centers}, lengths: {self.lengths}')
     
     def show(self):
-        try:
-            import matplotlib.pyplot as plt
-        except ImportError:
-            print("Matplotlib is required to use show()")
-            return
+        import matplotlib.pyplot as plt
 
         X, Y = self.sampling_line(1000)
         plt.plot(X.numpy(), Y.numpy())
         plt.gca().set_aspect('equal', adjustable='box')
         plt.show()
-
 
 class Area(PhysicsAttach):
     """
@@ -180,56 +174,57 @@ class Area(PhysicsAttach):
         Automatically determines the 'direction' (reject_above) of boundaries
         using a ray-casting approach from the center.
         """
-        def is_inrange(val, rng):
-            return rng[0] < val < rng[1]
-
-        # Brute force checking orientation
-        for bound in self.bound_list:
-            ax = bound.ax
-            
-            if ax in [0, 1]: # Standard x or y axis definition
+        bound_list = self.bound_list
+        def is_inrange(x, range_x):
+            return range_x[0] < x < range_x[1]
+        #brute force checking
+        ax = 0
+        for i, bound in enumerate(bound_list):
+            if bound.ax == ax:
                 x = bound.centers[ax]
-            else: # Parameterized
-                x = bound.centers[0] + 1e-4
-
-            # Collect intersection points with other bounds at this coordinate
-            y_dict = {}
-            for j, bound_opponent in enumerate(self.bound_list):
-                # Ensure we handle the correct axis lookup for the opponent
-                opp_ax = bound_opponent.ax if bound_opponent.ax < 2 else 0
-                
-                if is_inrange(x, bound_opponent.ranges[opp_ax]):
-                     # Note: This assumes simple functions. Complex parameterizations may fail here.
-                    try:
-                        val = bound_opponent.funcs[opp_ax][0](torch.tensor(x)).item()
-                        y_dict[j] = val
-                    except:
-                        continue
-
-            sorted_items = sorted(y_dict.items(), key=lambda item: item[1])
-            sorted_indices = [idx for idx, _ in sorted_items]
-
-            # Assign rejection logic based on even/odd rule (standard for polygons)
-            for jj, index in enumerate(sorted_indices):
-                # Logic: If I am the boundary at this location...
-                if self.bound_list[index] == bound:
-                    # Using isclose for float comparison instead of round()
-                    is_even = (jj % 2 == 0)
-                    bound.reject_above = not is_even
+                # assign reject_above based on sorted y-values at x_center
+                y_dict = {}
+                for j, bound_opponent in enumerate(bound_list):
+                    # create sorted y_value dict
+                    if is_inrange(x, bound_opponent.ranges[ax]):
+                        y_dict[j] = bound_opponent.funcs[ax][0](x)
+                    sorted_index =  [index for (index, y) in sorted(y_dict.items(), key=lambda item: item[1])]
+                    # assign reject_above based on sorted y-values
+                    for jj, index in enumerate(sorted_index):
+                        if jj % 2 == 0:
+                            bound_list[index].reject_above = False
+                        else:
+                            bound_list[index].reject_above = True
+            else:
+                x = bound.centers[ax]+ 1e-4
+                # assign reject_above based on sorted y-values at x_center
+                y_dict = {}
+                for j, bound_opponent in enumerate(bound_list):
+                    # create sorted y_value dict
+                    if is_inrange(x, bound_opponent.ranges[ax]):
+                        y_dict[j] = bound_opponent.funcs[ax][0](x)
+                    sorted_index =  [index for (index, y) in sorted(y_dict.items(), key=lambda item: item[1])]
+                    # assign reject_above based on sorted y-values
+                    if sorted_index:
+                        for jj, index in enumerate(sorted_index):
+                            if round(y_dict[index],2) == round(bound.ranges[1][0],2):
+                                bound.reject_above = False if jj % 2 == 0 else True
+                            elif round(y_dict[index],2) == round(bound.ranges[1][1],2):
+                                bound.reject_above = True if jj % 2 == 0 else False
+                    else:
+                        bound.reject_above = True
 
     def sampling_area(self, n_points_square: Union[int, List[int]], random: bool = False) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Samples points within the area.
         """
         if random:
-            # Rejection sampling initialization (oversample slightly to ensure density)
-            n_pts = n_points_square if isinstance(n_points_square, int) else n_points_square[0] * n_points_square[1]
-            points = torch.empty(n_pts, 2)
+            points = torch.empty(n_points_square, 2)
             points[:, 0].uniform_(self.ranges[0][0], self.ranges[0][1])
             points[:, 1].uniform_(self.ranges[1][0], self.ranges[1][1])
             X, Y = points[:, 0], points[:, 1]
         else:
-            if isinstance(n_points_square, list):
+            if isinstance(n_points_square, (list, tuple)):
                 nx, ny = n_points_square[0], n_points_square[1]
             else:
                 nx = ny = n_points_square
@@ -260,7 +255,7 @@ class Area(PhysicsAttach):
         self.sampled_area = (self.X, self.Y)
         return self.X, self.Y
 
-    def sampling_lines(self, *n_points_per_line, random: bool = False):
+    def sampling_lines(self, *n_points_per_line, random: bool = False) -> Tuple[torch.Tensor, torch.Tensor]:
         output_x = []
         output_y = []
         
@@ -274,7 +269,7 @@ class Area(PhysicsAttach):
             output_x.append(X)
             output_y.append(Y)
             
-        return [torch.stack(output_x, dim=0)], [torch.stack(output_y, dim=0)]
+        return torch.stack(output_x, dim=0), torch.stack(output_y, dim=0)
 
     def __sub__(self, other_area: 'Area') -> 'Area':
         """Boolean subtraction of geometry."""
@@ -283,23 +278,18 @@ class Area(PhysicsAttach):
             bound.reject_above = not bound.reject_above
         return Area(self.bound_list, bound_list)
 
-    def __add__(self, other_bound: Union['Bound', 'Area']) -> 'Area':
-        """Combine areas."""
-        if isinstance(other_bound, Area):
-            # Logic to merge two areas would go here
-            pass
-        new_list = self.bound_list.copy()
-        new_list.append(other_bound)
-        return Area(new_list)
+    def __add__(self, other_bound: 'Bound') -> 'Area':
+        """Merge a boundary with an area"""
+        return Area(self.bound_list.copy().append(other_bound))
     
     def __iter__(self):
         return iter(self.bound_list)
     
     def __str__(self):
-        s = "Area defined by bounds:\n"
+        s = ''
         for i, bound in enumerate(self.bound_list):
-            s += f"  {i}: {bound}\n"
-        s += f"  Global Range: {self.ranges}"
+            s += f"{i} {bound}\n"
+        s += f"ranges: {self.ranges}, centers: {self.centers}, lengths{self.lengths}"
         return s
     
     def show(self, show_index: bool = False):
