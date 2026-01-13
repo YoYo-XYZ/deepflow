@@ -4,6 +4,7 @@ from typing import List, Dict, Callable, Optional, Tuple, Union
 import torch
 import torch.nn as nn
 
+from .geometry import Bound
 from .utility import get_device
 
 class HardConstraint:
@@ -117,7 +118,7 @@ class PINN(nn.Module):
 
         return output_dict
 
-    def apply_hard_constraints(self, bound_list: List):
+    def apply_hard_constraints(self, bound_list: List[Bound]):
         """
         Configures hard constraints based on a list of boundary conditions.
         """
