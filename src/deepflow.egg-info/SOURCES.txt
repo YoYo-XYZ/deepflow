@@ -15,7 +15,3 @@ src/deepflow.egg-info/SOURCES.txt
 src/deepflow.egg-info/dependency_links.txt
 src/deepflow.egg-info/requires.txt
 src/deepflow.egg-info/top_level.txt
-test/test.py
-test/test2.py
-test/test3.py
-test/test4.py

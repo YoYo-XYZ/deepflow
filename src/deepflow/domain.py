@@ -67,12 +67,8 @@ class ProblemDomain():
                 X, Y = bound.sampling_residual_based(bound_top_k_list[i], model)
                 
                 # Restore and concatenate
-                if original_X is not None:
-                    bound.X = torch.cat([original_X, X])
-                    bound.Y = torch.cat([original_Y, Y])
-                else:
-                    bound.X = X
-                    bound.Y = Y
+                bound.X = torch.cat([original_X, X]) if original_X is not None else X
+                bound.Y = torch.cat([original_Y, Y]) if original_Y is not None else Y
             bound.process_coordinates()
         for i, area in enumerate(self.area_list):
             if area_candidates_num_list is None:
@@ -88,12 +84,8 @@ class ProblemDomain():
                 X, Y = area.sampling_residual_based(area_top_k_list[i], model)
                 
                 # Restore and concatenate
-                if original_X is not None:
-                    area.X = torch.cat([original_X, X])
-                    area.Y = torch.cat([original_Y, Y])
-                else:
-                    area.X = X
-                    area.Y = Y
+                area.X = torch.cat([original_X, X]) if original_X is not None else X
+                area.Y = torch.cat([original_Y, Y]) if original_Y is not None else Y
             area.process_coordinates()
 #------------------------------------------------------------------------------------------------
     def _format_condition_dict(self, obj, obj_type='Bound'):
