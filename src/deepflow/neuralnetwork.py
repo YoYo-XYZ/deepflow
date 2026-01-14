@@ -275,14 +275,16 @@ class PINN(nn.Module):
 
         return model
     
-    def save_as_pickle(self, file_name: str) -> None:
+    def save_as_pickle(self, file_name: str = "model.pkl") -> None:
         """Saves the model as a pickle file."""
         import pickle
+        if file_name[-4:] != '.pkl': file_name += '.pkl'
         with open(file_name, 'wb') as f:
             pickle.dump(self, f)
     
-    def load_from_file(self, file_name: str) -> None:
+    def load_from_pickle(self, file_name: str) -> None:
         """Loads the model from a pickle file."""
         import pickle
+        if file_name[-4:] != '.pkl': file_name += '.pkl'
         with open(file_name, 'rb') as f:
             self = pickle.load(f)

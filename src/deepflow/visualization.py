@@ -1,10 +1,11 @@
 from typing import Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
-import matplotlib.axes
 import numpy as np
 
 class Visualizer:
+    area_per_plot = 50 # inches squared
+
     """
     Main visualization class for processing data dictionaries.
     Refactored for simplicity and maintainability.
@@ -47,17 +48,23 @@ class Visualizer:
         """
         Creates a figure and a list of axes based on the number of plots and orientation.
         """
-        rows, cols = (n_plots, 1) if orientation == 'vertical' else (1, n_plots)
-        
-        # Auto-size figure: ~4 inches per plot vertically, or ~4 inches per plot horizontally
-        figsize = None
-        if orientation == 'vertical':
-            figsize = (6, 4 * n_plots)
-        else:
-            figsize = (4 * n_plots, 5)
+        # Determine the ratio of layout based from X and Y ranges
+        ratio = np.ptp(self.Y) / np.ptp(self.X)
+        if ratio == 0: ratio = 0.4/np.ptp(self.X)
+        elif ratio > 1e5: ratio = 0.4*np.ptp(self.Y)
 
+        #Determine size of the plots based from ration and area per plot
+        rows, cols = (n_plots, 1) if orientation == 'vertical' else (1, n_plots)
+        fig_length, fig_width = (self.area_per_plot / ratio)**0.5, (self.area_per_plot * ratio)**0.5 #parameterized width and length to area and ratio
+        if orientation == 'vertical':
+            figsize = (fig_length, fig_width * n_plots)
+        else:
+            figsize = (fig_length * n_plots, fig_width)
+
+        # Create subplots
         fig, axes = plt.subplots(rows, cols, figsize=figsize, constrained_layout=True, subplot_kw=subplot_kw)
         
+        # Flatten axes array for easy iteration
         if n_plots == 1:
             axes = [axes]
         else:
@@ -66,7 +73,7 @@ class Visualizer:
         return fig, axes
 
 
-    def plot_color(self, keys: Union[str, List[str], Dict], s: int = 10, orientation: str = 'vertical') -> plt.Figure:
+    def plot_color(self, keys: Union[str, List[str], Dict], s: Union[int, float] = 2, orientation: str = 'vertical') -> plt.Figure:
         """
         Creates scatter plots (heatmap style) for the specified keys.
         """
@@ -113,6 +120,7 @@ class Visualizer:
                 scatter = ax.scatter(self.X, self.Y, self.data_dict[key], c=self.data_dict[key], cmap=color, s=2)
                 ax.set(xlabel='x', ylabel='y')
                 ax.set_title(f'3D Scatter Plot of {key}')
+                ax.dist = 8 # Compact view
                 fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
             
             elif axis in ['x', 'y']:

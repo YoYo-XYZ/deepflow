@@ -1,3 +1,4 @@
+from xml.parsers.expat import model
 from .geometry import Area, Bound
 import matplotlib.pyplot as plt
 import torch
@@ -183,3 +184,12 @@ class ProblemDomain():
 #-------------------------------------------------------------------------------------------------
     def __getitem__(self, key):
         return
+    
+def calc_loss_simple(domain: ProblemDomain) -> callable:
+    """Returns a simple loss calculation for the given domain for PINN training."""
+    def calc_loss_function(model):
+        bc_loss = sum(b.calc_loss(model) for b in domain.bound_list)
+        pde_loss = sum(a.calc_loss(model) for a in domain.area_list)
+        total_loss = bc_loss + pde_loss
+        return {"bc_loss": bc_loss, "pde_loss": pde_loss, "total_loss": total_loss}
+    return calc_loss_function
