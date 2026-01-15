@@ -65,10 +65,6 @@ import deepflow as df
 rectangle = df.geometry.rectangle([0, 5], [0, 1])
 domain = df.domain(rectangle)
 
-# Create a 5x1 rectangle
-rectangle = df.geometry.rectangle([0, 5], [0, 1])
-domain = df.domain(rectangle)
-
 domain.show_setup() # Display the domain setup
 ```
 ![alt text](static/quickstart/setup_show.png)
@@ -97,7 +93,7 @@ domain.show_coordinates(display_conditions=True)
 
 ```python
 # Initialize the PINN model
-model0 = PINN(width=40, length=4)
+model0 = df.PINN(width=40, length=4)
 ```
 ```python
 # Train the model using Adam Optimizer
