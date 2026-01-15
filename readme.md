@@ -21,11 +21,12 @@ DeepFlow is a user-friendly framework for solving partial differential equations
 
 ## Features
 
-- **CFD-Solver Style**: Straightforward workflow similar to commercial CFD software.
-- **Physics-Attached Geometry**: Explicitly attach physics and PINN models to geometries.
-- **Built-in Visualization**: Tools to evaluate and plot results.
+- 🔧 **CFD-Solver Style**: Straightforward workflow similar to commercial CFD software.
+
+- 📊 **Built-in Visualization**: Tools to evaluate and plot results.
+- 🚀 **GPU Acceleration**: Enable GPU for faster training.
 - **Flexible Domain Definition**: Easily define complex geometries.
-- **GPU Acceleration**: Enable GPU for faster training.
+- **Physics-Attached Geometry**: Explicitly attach physics and PINN models to geometries.
 
 ## Installation
 
@@ -53,7 +54,7 @@ pip install -e .
 
 ## Quick Start
 
-This example demonstrates how to simulate steady channel flow. We recommend using a Python notebook (`.ipynb`) for an interactive experience.
+This example demonstrates how to simulate steady channel flow ~under 20 lines of code!~ We recommend using a Python notebook (`.ipynb`) for an interactive experience.
 
 ### 1. Define the Geometry and Physics
 
@@ -71,7 +72,7 @@ domain.bound_list[0].define_bc({'u': 0, 'v': 0})
 domain.bound_list[1].define_bc({'u': 0, 'v': 0})
 domain.bound_list[2].define_bc({'u': 1, 'v': 0})
 domain.bound_list[3].define_bc({'p': 0})
-domain.area_list[0].define_pde(Physics.NavierStokes(U=0.0001, L=1, mu=0.001, rho=1000))
+domain.area_list[0].define_pde(df.NavierStokes(U=0.0001, L=1, mu=0.001, rho=1000))
 ```
 ![alt text](examples/quickstart/setup.png)
 
@@ -82,26 +83,25 @@ domain.sampling_random([100, 100, 200, 100], [5000])
 domain.show_coordinates(display_conditions=True)  # display
 ```
 ![alt text](examples/quickstart/collocation_points.png)
-### 2. Define the Model and Loss
+### 2. Create and Train the model
 
 Create the PINN model
 
 ```python
 # Initialize the PINN model
 model0 = PINN(width=40, length=4)
-### 3. Train the Model
+```
 
 Train the model using the Adam optimizer.
 
 ```python
-# Train the model
+# Train the model using Adam Optimizer
 model1 = NetworkTrainer.train_adam(
     model=model0,
     calc_loss=df.calc_loss_simple(domain),
     learning_rate=0.001,
     epochs=2000,
     print_every=250,
-    threshold_loss=0.01,
 )
 ```
 
@@ -111,9 +111,16 @@ After training, you can easily visualize the flow field and training history.
 
 ```python
 area_eval = domain.area_list[0].eval(model1)
-area_eval.sampling_area(500, 100)
-colorplot_area_2d = area_eval.plot_data_on_geometry({'u': 'rainbow'})
-loss_history = area_eval.plot_loss_curve(log_scale=True)
+area_eval.sampling_area([500, 100])
+
+bound_eval = domain.bound_list[0].eval(model1)
+area_eval.sampling_line(100)
+```
+
+```python
+area_eval.plot_color({'u': 'rainbow'}) # plot 2d color plot
+bound_eval.plot({'u'})
+area_eval.plot_loss_curve(log_scale=True) # plot loss curve
 ```
 ![alt text](examples/quickstart/flow_field.png)
 ![alt text](examples/quickstart/loss_curve.png)
@@ -127,22 +134,19 @@ Explore the `examples/` directory for real-world use cases, including:
 - Steady channel flow
 - Steady cylinder flow
 - Parabolic flows (BFS and channel)
-- Quickstart guide
+- Quickstart
 
 Each example includes Jupyter notebooks and data files.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+Feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## DeepFlow Milestones
 
 1. Complete support for **time-dependent solutions**
-2. Enhanced customization options in **visualization tools**
-3. Integration with the **PennyLane quantum machine learning** framework
-4. Support for **hard boundary and hard initial conditions**
-5. Implementation of **RAD sampling methods**
-6. Ability to define **custom PDEs** (partial differential equations)
+2. Ability to define **custom PDEs**
+3. Enhanced customization options in **visualization tools**
 
 ## License
 
