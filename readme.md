@@ -97,12 +97,10 @@ model0 = df.PINN(width=40, length=4)
 ```
 ```python
 # Train the model using Adam Optimizer
-model1 = NetworkTrainer.train_adam(
-    model=model0,
+model1 = model0.train_adam(
     calc_loss=df.calc_loss_simple(domain),
     learning_rate=0.001,
-    epochs=2000,
-    print_every=250)
+    epochs=2000,)
 ```
 
 ### 3. Visualize Results
