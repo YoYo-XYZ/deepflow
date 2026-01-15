@@ -49,7 +49,8 @@ class Visualizer:
         Creates a figure and a list of axes based on the number of plots and orientation.
         """
         # Determine the ratio of layout based from X and Y ranges
-        ratio = np.ptp(self.Y) / np.ptp(self.X)
+        try: ratio = np.ptp(self.Y) / np.ptp(self.X)
+        except Exception: pass
         if ratio == 0: ratio = 0.4/np.ptp(self.X)
         elif ratio > 1e5: ratio = 0.4*np.ptp(self.Y)
 

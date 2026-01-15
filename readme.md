@@ -58,8 +58,6 @@ This example demonstrates how to simulate steady channel flow ~under 20 lines of
 
 ### 1. Define the Geometry and Physics
 
-First, define the geometries of your domain. Then, attach the boundary conditions and the governing PDE to the geometric entities.
-
 ```python
 import deepflow as df
 
@@ -67,33 +65,39 @@ import deepflow as df
 rectangle = df.geometry.rectangle([0, 5], [0, 1])
 domain = df.domain(rectangle)
 
-# Define the physics at the geometry
-domain.bound_list[0].define_bc({'u': 0, 'v': 0})
-domain.bound_list[1].define_bc({'u': 0, 'v': 0})
-domain.bound_list[2].define_bc({'u': 1, 'v': 0})
-domain.bound_list[3].define_bc({'p': 0})
-domain.area_list[0].define_pde(df.NavierStokes(U=0.0001, L=1, mu=0.001, rho=1000))
+# Create a 5x1 rectangle
+rectangle = df.geometry.rectangle([0, 5], [0, 1])
+domain = df.domain(rectangle)
+domain.show_setup() # Display the domain setup
 ```
-![alt text](examples/quickstart/setup.png)
-
-Next, sample the collocation points. This will automatically create training data according to the defined physics.
+![alt text](static/quickstart/setup_show.png)
 ```python
-# Sampling initial collocation points
-domain.sampling_random([100, 100, 200, 100], [5000])
-domain.show_coordinates(display_conditions=True)  # display
+# Define Boundary Conditions
+domain.bound_list[0].define_bc({'u': 1, 'v': 0})   # Inflow: u=1
+domain.bound_list[1].define_bc({'u': 0, 'v': 0})  # Wall: No slip
+domain.bound_list[2].define_bc({'p': 0})          # Outflow: p=0
+domain.bound_list[3].define_bc({'u': 0, 'v': 0})  # Wall: No slip
+
+# Define PDE (Navier-Stokes)
+domain.area_list[0].define_pde(df.pde.NavierStokes(U=0.0001, L=1, mu=0.001, rho=1000))
+
+domain.show_setup() # Display the domain setup
 ```
-![alt text](examples/quickstart/collocation_points.png)
+![alt text](static/quickstart/cond_show.png)
+
+```python
+# Sample points: [Left, Bottom, Right, Top], [Interior]
+domain.sampling_random([200, 400, 200, 400], [5000])
+domain.show_coordinates(display_conditions=True)
+```
+![alt text](static/quickstart/coord_show.png)
 ### 2. Create and Train the model
 
-Create the PINN model
 
 ```python
 # Initialize the PINN model
 model0 = PINN(width=40, length=4)
 ```
-
-Train the model using the Adam optimizer.
-
 ```python
 # Train the model using Adam Optimizer
 model1 = NetworkTrainer.train_adam(
@@ -101,31 +105,23 @@ model1 = NetworkTrainer.train_adam(
     calc_loss=df.calc_loss_simple(domain),
     learning_rate=0.001,
     epochs=2000,
-    print_every=250,
-)
+    print_every=250)
 ```
 
-### 4. Visualize the Results
-
-After training, you can easily visualize the flow field and training history.
-
+### 3. Visualize Results
 ```python
-area_eval = domain.area_list[0].eval(model1)
-area_eval.sampling_area([500, 100])
+# Evaluate the best model
+prediction = domain.area_list[0].evaluate(model1_best)
+prediction.sampling_area([500, 100])
 
-bound_eval = domain.bound_list[0].eval(model1)
-area_eval.sampling_line(100)
+# Plot Velocity Field
+_ = prediction.plot_color({'u': 'rainbow'})
+
+# Plot Training Loss
+_ =prediction.plot_loss_curve(log_scale=True)
 ```
-
-```python
-area_eval.plot_color({'u': 'rainbow'}) # plot 2d color plot
-bound_eval.plot({'u'})
-area_eval.plot_loss_curve(log_scale=True) # plot loss curve
-```
-![alt text](examples/quickstart/flow_field.png)
-![alt text](examples/quickstart/loss_curve.png)
-
-This will produce a visual representation of the steady-state channel flow and the loss curve of the trained PINN.
+![alt text](static/quickstart/flow_field.png)
+![alt text](static/quickstart/loss_curve.png)
 
 ## Examples
 
