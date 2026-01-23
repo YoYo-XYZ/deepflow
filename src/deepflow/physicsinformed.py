@@ -48,41 +48,37 @@ class PhysicsAttach:
     # Condition Definitions
     # --------------------------------------------------------------------------
 
-    def define_bc(self, condition_dict: Dict[str, Any], range_t: Optional[Tuple[float, float]] = None) -> None:
+    def define_bc(self, condition_dict: Dict[str, Any]) -> None:
         """
         Define Boundary Conditions (BC).
 
         Args:
             condition_dict: Dictionary mapping variable names to conditions.
-            range_t: Tuple of (min_t, max_t) or None.
         """
         self.condition_dict = condition_dict
         self.condition_num = len(condition_dict)
-        self.range_t = range_t
         self.physics_type = "BC"
     
-    def define_ic(self, condition_dict: Dict[str, Any], t: float = 0.0) -> None:
+    def define_ic(self, condition_dict: Dict[str, Any], range_t: Optional[Tuple[float, float]] = None) -> None:
         """
         Define Initial Conditions (IC).
 
         Args:
             condition_dict: Dictionary mapping variable names to conditions.
-            t: The time instance for the initial condition.
+            range_t: Tuple of (min_t, max_t) or None.
         """
         self.condition_dict = condition_dict
         self.condition_num = len(condition_dict)
-        self.t = torch.tensor(t) if not isinstance(t, torch.Tensor) else t
+        self.range_t = range_t
         self.physics_type = "IC"
     
-    def define_pde(self, pde_class: PDE, range_t: Optional[Tuple[float, float]] = None) -> None:
+    def define_pde(self, pde_class: PDE) -> None:
         """
         Define the Partial Differential Equation (PDE) to enforce.
 
         Args:
             pde_class: Instance or class of the PDE physics module.
-            range_t: Tuple of (min_t, max_t) or None.
         """
-        self.range_t = range_t
         self.PDE = pde_class
         self.physics_type = "PDE"
 
@@ -97,7 +93,7 @@ class PhysicsAttach:
         self.X = x
         self.Y = y
 
-    def sampling_time(self, n_points: int, random: bool = False) -> None:
+    def sampling_time(self, n_points: int, init_scheme: str = "Uniform", expo_scaling = True) -> None:
         """
         Generate time coordinates based on the defined time range.
         """
@@ -105,11 +101,14 @@ class PhysicsAttach:
             self.t = None
             return
 
-        if random:
+        if init_scheme == "uniform":
+            self.t = torch.linspace(self.range_t[0], self.range_t[1], n_points)
+        elif init_scheme == "random":
             self.t = torch.empty(n_points).uniform_(self.range_t[0], self.range_t[1])
-        else:
-            # linspace creates a 1D tensor; [None] adds a batch dimension if needed
-            self.t = torch.linspace(self.range_t[0], self.range_t[1])[None]
+        
+        if expo_scaling:
+            T = self.range_t[1]
+            self.t = (1 + self.t)**(self.t/T) - 1 
 
     def process_coordinates(self, device: Optional[torch.device] = None) -> Dict[str, Optional[torch.Tensor]]:
         """
@@ -127,13 +126,14 @@ class PhysicsAttach:
         self.X_ = self.X.to(device).requires_grad_()
         self.Y_ = self.Y.to(device).requires_grad_()
 
+        self.inputs_tensor_dict = {'x': self.X_, 'y': self.Y_}
+
+        # Handle time coordinate if applicable
         if self.range_t:
             if self.t is None:
                 raise ValueError("Time range is set but time 't' has not been sampled.")
             self.T_ = self.t.to(device).requires_grad_()
-            self.inputs_tensor_dict = {'x': self.X_, 'y': self.Y_, 't': self.T_}
-        else:
-            self.inputs_tensor_dict = {'x': self.X_, 'y': self.Y_, 't': None}
+            self.inputs_tensor_dict['t'] = self.T_
 
         # Pre-calculate target values for BC/IC
         if self.physics_type in ["IC", "BC"]:
