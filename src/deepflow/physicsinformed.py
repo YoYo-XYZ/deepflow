@@ -117,13 +117,14 @@ class PhysicsAttach:
         """
         Generate time coordinates based on the defined time range.
         """
+        if self.X is None: raise ValueError("Before sampling time t, X coordinate must be sampling first")
         n_points = len(self.X)
         device = get_device()
 
         # Generate time coordinates
         if self.physics_type == "IC":
             # For IC, time is always zero
-            self.t = self.range_t[0] * torch.ones_like(self.X_, device=device)
+            self.t = self.range_t[0] * torch.ones_like(self.X, device=device)
         elif isinstance(self.range_t, (tuple, list)):
             if self.scheme == "uniform":
                 self.t = torch.linspace(self.range_t[0], self.range_t[1], n_points)

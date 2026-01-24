@@ -101,7 +101,7 @@ class Visualizer:
     # Modern alias
     plot_scatter = plot_color
 
-    def plot(self, z_axis: Union[str, List[str], Dict] = None, x_axis:str = 'x', y_axis: Union[str, List[str], Dict] = None) -> plt.Figure:
+    def plot(self, z_axis: Union[str, List[str], Dict] = None, x_axis:str = 'x', y_axis: Union[str, List[str], Dict] = 'y') -> plt.Figure:
         """
         General plotting method.
         If axis='xy': 3D surface plot.
