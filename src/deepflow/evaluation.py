@@ -2,6 +2,7 @@ from typing import List, Union, Dict, Any, Optional
 
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Explicit imports are better for open source
 from .neuralnetwork import PINN 
@@ -40,9 +41,9 @@ class Evaluator(Visualizer):
         self.geometry.sampling_area(res_list)
         self.postprocess()
 
-    def define_time(self, range_t: Union[float, List[float]]) -> None:
+    def define_time(self, time: Union[float, int]) -> None:
         """Defines time coordinates for transient problems."""
-        self.geometry.define_time(range_t, "uniform", False)
+        self.geometry.define_time(time, "uniform", False)
         self.postprocess()
 
     def postprocess(self) -> None:
@@ -55,7 +56,6 @@ class Evaluator(Visualizer):
         self.geometry.process_coordinates()
 
         self._create_data_dict()
-        print(f"Available data keys: {tuple(self.data_dict.keys())}")
         self.is_postprocessed = True
         
         # Initialize the parent Visualizer with the processed data
@@ -115,3 +115,48 @@ class Evaluator(Visualizer):
     
     def __setitem__(self, key: str, value: Any) -> None:
         self.data_dict[key] = value
+
+    def __str__(self):
+        return f"Available data keys: {tuple(self.data_dict.keys())}"
+
+    def plot_animate(self, color_axis: Union[str, Dict], x_axis: str = 'x', y_axis: str = 'y', range_t=None, dt=None, frame_interval = 10):
+        """
+        Creates an animation over time for the specified key(s).
+        """
+        import matplotlib.animation as animation
+
+        key, cmap = self._normalize_args(color_axis)[0]
+
+        # Prepare data to animate
+        x = self.data_dict[x_axis]
+        y = self.data_dict[y_axis]
+        color_list = []
+        time_list = list(np.arange(range_t[0], range_t[1], dt))
+        for t in time_list:
+            self.define_time(t)
+            color_list.append(self.data_dict[key])
+        max_val = np.max([np.max(c) for c in color_list])
+        min_val = np.min([np.min(c) for c in color_list])
+
+        fig, ax = plt.subplots()
+
+        # Initialize figure
+        scatter = ax.scatter(x, y, c=color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, s=1)
+        title = ax.set_title(f'{key} - Time: {time_list[0]:.3f}')
+        ax.set_xlabel(x_axis)
+        ax.set_ylabel(y_axis)
+        ax.set_aspect('equal')
+        
+        # Add colorbar
+        cbar = fig.colorbar(scatter, ax=ax)
+        cbar.set_label(key)
+        
+        def animate(frame):
+            scatter.set_array(color_list[frame])
+            title.set_text(f'{key} - Time: {time_list[frame]:.3f}')
+            return scatter, title
+
+        ani = animation.FuncAnimation(fig, animate, frames=len(time_list), interval=frame_interval, blit=True)
+        plt.show()
+        return ani
+    

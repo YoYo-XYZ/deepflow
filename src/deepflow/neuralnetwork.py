@@ -226,7 +226,7 @@ class PINN(nn.Module):
         self, 
         epochs: int, 
         calc_loss: Callable, 
-        print_every: int = 200, 
+        print_every: int = 50, 
         threshold_loss: Optional[float] = None
     ) -> 'PINN':
         """
