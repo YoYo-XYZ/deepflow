@@ -74,7 +74,7 @@ class Visualizer:
         return fig, axes
 
 
-    def plot_color(self, color_axis: Union[str, List[str], Dict], x_axis='x', y_axis='y', s: Union[int, float] = 2, orientation: str = 'vertical') -> plt.Figure:
+    def plot_color(self, color_axis: Union[str, List[str], Dict], x_axis:str = 'x', y_axis:str = 'y', s: Union[int, float] = 2, orientation: str = 'vertical') -> plt.Figure:
         """
         Creates scatter plots (heatmap style) for the specified keys.
         """
@@ -90,9 +90,9 @@ class Visualizer:
             im = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], s=s, c=self.data_dict[key], cmap=cmap, marker='s')
             
             # Styling
-            ax.set_title(key, fontweight='medium', pad=10, fontsize=13)    
-            ax.set_xlabel('x', fontstyle='italic', labelpad=0)
-            ax.set_ylabel('y', fontstyle='italic', labelpad=0)
+            ax.set_title(color_axis, fontweight='medium', pad=10, fontsize=13)    
+            ax.set_xlabel(x_axis, fontstyle='italic', labelpad=0)
+            ax.set_ylabel(y_axis, fontstyle='italic', labelpad=0)
             ax.set_aspect('equal')
             fig.colorbar(im, ax=ax, pad=0.03)
 
@@ -101,17 +101,20 @@ class Visualizer:
     # Modern alias
     plot_scatter = plot_color
 
-    def plot(self, z_axis: Union[str, List[str], Dict], x_axis = 'x', y_axis = 'y') -> plt.Figure:
+    def plot(self, z_axis: Union[str, List[str], Dict] = None, x_axis:str = 'x', y_axis: Union[str, List[str], Dict] = None) -> plt.Figure:
         """
         General plotting method.
         If axis='xy': 3D surface plot.
         If axis='x' or 'y': 1D line plot against that axis.
-        """
-        items = self._normalize_args(z_axis, default_cmap='viridis' if axis == 'xy' else None)
-        
-        is_3d = (z_axis is not None)
+        """    
+        is_3d = (x_axis is not None and y_axis is not None and z_axis is not None)
         subplot_kw = {'projection': '3d'} if is_3d else {}
         
+        if is_3d:
+            items = self._normalize_args(z_axis, default_cmap='viridis')
+        else:
+            items = self._normalize_args(y_axis, default_cmap='viridis')
+
         # Default orientation vertical for consistency with old behavior
         fig, axes = self._create_subplots(len(items), 'vertical', subplot_kw=subplot_kw)
 
@@ -124,15 +127,15 @@ class Visualizer:
                 ax.dist = 8 # Compact view
                 fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
             
-            elif axis in ['x', 'y']:
+            elif y_axis is not None and x_axis is not None:
                 # Line Plot
-                ax.plot(self.data_dict[axis], self.data_dict[key], linewidth=2.0, color=color)
+                ax.plot(self.data_dict[x_axis], self.data_dict[key], linewidth=2.0, color=color)
                 ax.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
-                ax.set_xlabel(axis, fontsize=10)
-                ax.set_ylabel(key, fontsize=10)
+                ax.set_xlabel(x_axis, fontsize=10)
+                ax.set_ylabel(y_axis, fontsize=10)
             
             else:
-                raise ValueError("axis must be 'x', 'y', or 'xy'")
+                raise ValueError("must has atleast 2 axis")
 
         return fig
 

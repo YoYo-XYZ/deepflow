@@ -46,8 +46,6 @@ class Evaluator(Visualizer):
         then converts them to NumPy for visualization.
         """
         self.geometry.process_coordinates()
-        if self.geometry.range_t:
-            self.geometry.sampling_time(init_scheme="uniform", expo_scaling=False)
 
         self._create_data_dict()
         print(f"Available data keys: {tuple(self.data_dict.keys())}")

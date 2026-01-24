@@ -1,4 +1,5 @@
 from typing import Dict, Optional, Tuple, Union, Callable, Any
+import warnings
 
 import torch
 import torch.nn as nn
@@ -91,29 +92,33 @@ class PhysicsAttach:
         self.X = x
         self.Y = y
     
-    def define_time_range(self, range_t: Union[Tuple[float, float], int, float]) -> None:
+    def define_time(self, range_t: Union[Tuple[float, float], int, float] = None, sampling_scheme: str = None, expo_scaling = None) -> None:
         """
         Define the time range.
         """
-        self.range_t = range_t
+        # Handle args: Define or use existing range_t, scheme, expo_scaling
+        if range_t is not None: self.range_t = range_t
+        elif self.range_t is None:
+            raise ValueError("Time range must be defined before sampling time coordinates.")
+        
+        if sampling_scheme is not None:
+            self.scheme = sampling_scheme
+        elif self.scheme is None:
+            self.scheme = "uniform"
+            warnings.warn("Sampling has not yet defined. Uniform scheme is used.")
 
-    def sampling_time(self, range_t: Optional[Tuple[float, float]] = None, scheme: str = None, expo_scaling = False) -> None:
+        if expo_scaling is not None:
+            self.expo_scaling = expo_scaling
+        elif self.expo_scaling is None:
+            self.expo_scaling = False
+            warnings.warn("expo_scaling has not yet defined. False is set as default.")
+
+    def sampling_time(self) -> None:
         """
         Generate time coordinates based on the defined time range.
         """
         n_points = len(self.X)
         device = get_device()
-
-        # Handle args
-        if range_t is not None: self.range_t = range_t
-        elif self.range_t is None:
-            raise ValueError("Time range must be defined before sampling time coordinates.")
-        
-        if scheme is not None: self.scheme = scheme
-        elif self.scheme is None: self.scheme = "uniform"
-
-        if expo_scaling is not None: self.expo_scaling = expo_scaling
-        elif self.expo_scaling is None: self.expo_scaling = False
 
         # Generate time coordinates
         if self.physics_type == "IC":
@@ -145,6 +150,7 @@ class PhysicsAttach:
         """
         if self.X is None or self.Y is None:    
             raise ValueError("Coordinates X and Y must be set before processing.")
+        if self.range_t is not None: self.sampling_time()
 
         device = get_device() if device is None else device
         
