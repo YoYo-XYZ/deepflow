@@ -21,6 +21,4 @@ dist/
 # Logs
 *.log
 
-EXPERIMENTS1/
-
-EXPERIMENTS2/
+EXPERIMENTS/

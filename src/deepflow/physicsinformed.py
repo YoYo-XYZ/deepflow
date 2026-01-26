@@ -269,7 +269,6 @@ class PhysicsAttach:
         self.calc_loss_field(model)
         
         if isinstance(self.loss_field, (int, float)): 
-            print("fdsdfs")
             # Loss field not calculated or zero
             return torch.tensor([]), torch.tensor([])
 

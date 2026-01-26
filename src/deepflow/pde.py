@@ -186,17 +186,17 @@ class BurgersEquation1D(PDE):
 
     def compute_residuals(self, inputs_dict: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor]:
         x = inputs_dict['x']
-        t = inputs_dict['t']
+        y = inputs_dict['y']
         u = inputs_dict['u']
 
         # First derivatives
-        u_x, u_t = calc_grads(u, (x, t))
+        u_x, u_y = calc_grads(u, (x, y))
 
         # Second derivative
         u_xx = calc_grad(u_x, x)
 
         # Residual
-        burgers_residual = u_t + u * u_x - self.nu * u_xx
+        burgers_residual = u_y + u * u_x - self.nu * u_xx
 
         self.residual_fields = (burgers_residual,)
         return self.residual_fields
