@@ -19,7 +19,7 @@ def domain(*geometries):
             bound_list.append(geometry)
         elif isinstance(geometry, Area):
             area_list.append(geometry)
-            bound_list+=geometry.bound_list
+            bound_list += geometry.bound_list
         else:
             raise TypeError(f"Expected Bound or Area, got {type(geometry)}")
     return ProblemDomain(bound_list, area_list)
@@ -46,10 +46,19 @@ class ProblemDomain():
     def sampling_random(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
         self.sampling_option = 'random'
         for i, res in enumerate(bound_sampling_res):
-            self.bound_list[i].sampling_line(res, random=True)
+            self.bound_list[i].sampling_line(res, scheme='random')
             self.bound_list[i].process_coordinates()
         for i, res in enumerate(area_sampling_res):
-            self.area_list[i].sampling_area(res, random=True)
+            self.area_list[i].sampling_area(res, scheme='random')
+            self.area_list[i].process_coordinates()
+
+    def sampling_lhs(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
+        self.sampling_option = 'lhs'
+        for i, res in enumerate(bound_sampling_res):
+            self.bound_list[i].sampling_line(res, scheme='lhs')
+            self.bound_list[i].process_coordinates()
+        for i, res in enumerate(area_sampling_res):
+            self.area_list[i].sampling_area(res, scheme='lhs')
             self.area_list[i].process_coordinates()
 
     def sampling_RAR(self, model, bound_top_k_list:list, area_top_k_list:list, bound_candidates_num_list:list=None, area_candidates_num_list:list=None):
@@ -63,7 +72,7 @@ class ProblemDomain():
                 original_Y = bound.Y.clone() if hasattr(bound, 'Y') else None
                 
                 # Sample new candidates
-                bound.sampling_line(bound_candidates_num_list[i], random=True)
+                bound.sampling_line(bound_candidates_num_list[i], scheme='random')
                 bound.process_coordinates()
                 X, Y = bound.sampling_residual_based(bound_top_k_list[i], model)
                 
