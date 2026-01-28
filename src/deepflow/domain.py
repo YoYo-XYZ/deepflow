@@ -61,42 +61,44 @@ class ProblemDomain():
             self.area_list[i].sampling_area(res, scheme='lhs')
             self.area_list[i].process_coordinates()
 
-    def sampling_RAR(self, model, bound_top_k_list:list, area_top_k_list:list, bound_candidates_num_list:list=None, area_candidates_num_list:list=None):
+    def sampling_RAR(self, model, bound_top_k_list:list=None, area_top_k_list:list=None, bound_candidates_num_list:list=None, area_candidates_num_list:list=None):
         self.sampling_option = self.sampling_option + ' + RAR'
-        for i, bound in enumerate(self.bound_list):
-            if bound_candidates_num_list is None:
-                bound.sampling_residual_based(bound_top_k_list[i], model)
-            else:
-                # Create a temporary copy by saving current state
-                original_X = bound.X.clone() if hasattr(bound, 'X') else None
-                original_Y = bound.Y.clone() if hasattr(bound, 'Y') else None
-                
-                # Sample new candidates
-                bound.sampling_line(bound_candidates_num_list[i], scheme='random')
+        if bound_top_k_list:
+            for i, bound in enumerate(self.bound_list):
+                if bound_candidates_num_list is None:
+                    bound.sampling_residual_based(bound_top_k_list[i], model)
+                else:
+                    # Create a temporary copy by saving current state
+                    original_X = bound.X.clone() if hasattr(bound, 'X') else None
+                    original_Y = bound.Y.clone() if hasattr(bound, 'Y') else None
+                    
+                    # Sample new candidates
+                    bound.sampling_line(bound_candidates_num_list[i], scheme='random')
+                    bound.process_coordinates()
+                    X, Y = bound.sampling_residual_based(bound_top_k_list[i], model)
+                    
+                    # Restore and concatenate
+                    bound.X = torch.cat([original_X, X]) if original_X is not None else X
+                    bound.Y = torch.cat([original_Y, Y]) if original_Y is not None else Y
                 bound.process_coordinates()
-                X, Y = bound.sampling_residual_based(bound_top_k_list[i], model)
-                
-                # Restore and concatenate
-                bound.X = torch.cat([original_X, X]) if original_X is not None else X
-                bound.Y = torch.cat([original_Y, Y]) if original_Y is not None else Y
-            bound.process_coordinates()
-        for i, area in enumerate(self.area_list):
-            if area_candidates_num_list is None:
-                area.sampling_residual_based(area_top_k_list[i], model)
-            else:
-                # Create a temporary copy by saving current state
-                original_X = area.X.clone() if hasattr(area, 'X') else None
-                original_Y = area.Y.clone() if hasattr(area, 'Y') else None
-                
-                # Sample new candidates
-                area.sampling_area(area_candidates_num_list[i], random=True)
+        if area_top_k_list:
+            for i, area in enumerate(self.area_list):
+                if area_candidates_num_list is None:
+                    area.sampling_residual_based(area_top_k_list[i], model)
+                else:
+                    # Create a temporary copy by saving current state
+                    original_X = area.X.clone() if hasattr(area, 'X') else None
+                    original_Y = area.Y.clone() if hasattr(area, 'Y') else None
+                    
+                    # Sample new candidates
+                    area.sampling_area(area_candidates_num_list[i], scheme='random')
+                    area.process_coordinates()
+                    X, Y = area.sampling_residual_based(area_top_k_list[i], model)
+                    
+                    # Restore and concatenate
+                    area.X = torch.cat([original_X, X]) if original_X is not None else X
+                    area.Y = torch.cat([original_Y, Y]) if original_Y is not None else Y
                 area.process_coordinates()
-                X, Y = area.sampling_residual_based(area_top_k_list[i], model)
-                
-                # Restore and concatenate
-                area.X = torch.cat([original_X, X]) if original_X is not None else X
-                area.Y = torch.cat([original_Y, Y]) if original_Y is not None else Y
-            area.process_coordinates()
 #------------------------------------------------------------------------------------------------
     def _format_condition_dict(self, obj, obj_type='Bound'):
         """Helper function to format condition dictionary for display."""

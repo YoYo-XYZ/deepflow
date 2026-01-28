@@ -89,9 +89,9 @@ class Visualizer:
             scatter = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], s=s, c=self.data_dict[key], cmap=cmap, marker='s')
             
             # Styling
-            ax.set_title(color_axis, fontweight='medium', pad=10, fontsize=13)    
+            ax.set_title(key, fontweight='medium', pad=10, fontsize=13)    
             ax.set_xlabel(x_axis, fontstyle='italic', labelpad=0)
-            ax.set_ylabel(key, fontstyle='italic', labelpad=0)
+            ax.set_ylabel(y_axis, fontstyle='italic', labelpad=0)
             ax.set_aspect('equal')
             fig.colorbar(scatter, ax=ax, pad=0.03)
 

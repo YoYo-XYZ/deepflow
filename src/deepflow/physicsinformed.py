@@ -266,6 +266,7 @@ class PhysicsAttach:
         Adaptive sampling: Add points where the residual loss is highest.
         """
         # Calculate loss field
+
         self.calc_loss_field(model)
         
         if isinstance(self.loss_field, (int, float)): 
@@ -282,10 +283,6 @@ class PhysicsAttach:
         # Note: This increases dataset size; need optimizing
         new_X = self.X[top_k_index]
         new_Y = self.Y[top_k_index]
-        
-        self.X = torch.cat([self.X, new_X])
-        self.Y = torch.cat([self.Y, new_Y])
-
 
         return new_X, new_Y
 
