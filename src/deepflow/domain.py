@@ -70,10 +70,9 @@ class ProblemDomain():
                 bound.sampling_line(bound_candidates_num_list[i], scheme='lhs')
                 bound.process_coordinates()
                 # Add RAR point to saved points
-                X_add, Y_add = bound.get_residual_based_points(top_k=bound_top_k_list[i])
-                bound.set_coordinates(torch.cat([bound.X_saved, X_add]), torch.cat([bound.Y_saved, Y_add]))
-                bound.process_coordinates()
-
+                bound.get_residual_based_points(top_k=bound_top_k_list[i])
+                bound.apply_residual_based_points()
+                bound.clear_residual_based_points()
                 bound.process_coordinates()
         if area_top_k_list:
             for i, area in enumerate(self.area_list):
@@ -82,33 +81,32 @@ class ProblemDomain():
                 area.sampling_area(area_candidates_num_list[i], scheme='lhs')
                 area.process_coordinates()
                 # Add RAR point to saved points
-                X_add, Y_add = area.get_residual_based_points(top_k=area_top_k_list[i])
-                area.set_coordinates(torch.cat([bound.X_saved, X_add]), torch.cat([bound.Y_saved, Y_add]))
+                area.get_residual_based_points(top_k=area_top_k_list[i])
+                area.apply_residual_based_points()
+                area.clear_residual_based_points()
                 area.process_coordinates()
 
-    def sampling_R3(self, bound_top_k_list:list=None, area_top_k_list:list=None, bound_candidates_num_list:list=None, area_candidates_num_list:list=None):
-        self.sampling_option = self.sampling_option + ' + RAR'
-        if bound_top_k_list:
+    def sampling_R3(self, bound_sampling_res:list=None, area_sampling_res:list=None):
+        self.sampling_option = self.sampling_option + ' + R3'
+        if bound_sampling_res:
             for i, bound in enumerate(self.bound_list):
                 bound.save_coordinates()
                 # Sample new candidates
-                bound.sampling_line(bound_candidates_num_list[i], scheme='lhs')
+                bound.sampling_line(bound_sampling_res[i], scheme='lhs')
                 bound.process_coordinates()
                 # Add RAR point to saved points
-                X_add, Y_add = bound.get_residual_based_points(top_k=bound_top_k_list[i])
-                bound.set_coordinates(torch.cat([bound.X_saved, X_add]), torch.cat([bound.Y_saved, Y_add]))
+                bound.get_residual_based_points(top_k=bound_sampling_res[i]/2)
+                bound.apply_residual_based_points()
                 bound.process_coordinates()
-
-                bound.process_coordinates()
-        if area_top_k_list:
+        if area_sampling_res:
             for i, area in enumerate(self.area_list):
                 area.save_coordinates()
                 # Sample new candidates
-                area.sampling_area(area_candidates_num_list[i], scheme='lhs')
+                area.sampling_area(area_sampling_res[i], scheme='lhs')
                 area.process_coordinates()
                 # Add RAR point to saved points
-                X_add, Y_add = area.get_residual_based_points(top_k=area_top_k_list[i])
-                area.set_coordinates(torch.cat([bound.X_saved, X_add]), torch.cat([bound.Y_saved, Y_add]))
+                area.get_residual_based_points(top_k=area_sampling_res[i]/2)
+                area.apply_residual_based_points()
                 area.process_coordinates()
 #------------------------------------------------------------------------------------------------
     def _format_condition_dict(self, obj, obj_type='Bound'):

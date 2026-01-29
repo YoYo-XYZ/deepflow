@@ -33,6 +33,8 @@ class PhysicsAttach:
         self.X_: Optional[torch.Tensor] = None
         self.Y_: Optional[torch.Tensor] = None
         self.T_: Optional[torch.Tensor] = None
+        self.X_residual_container: list[torch.Tensor] = []
+        self.Y_residual_container: list[torch.Tensor] = []
         
         # Data dictionaries
         self.inputs_tensor_dict: Dict[str, Optional[torch.Tensor]] = {}
@@ -261,6 +263,10 @@ class PhysicsAttach:
         self.loss_threshold = loss
         self.top_k_loss_threshold = top_k_loss
 
+    # --------------------------------------------------------------------------
+    # Residual-Based Adaptive Sampling Related
+    # --------------------------------------------------------------------------
+
     def save_coordinates(self) -> None:
         self.X_saved = self.X.clone()
         self.Y_saved = self.Y.clone()
@@ -280,12 +286,26 @@ class PhysicsAttach:
         # Flatten and move to CPU for indexing data
         top_k_index = top_k_index.flatten().cpu()
         
-        # Append new points to existing dataset
-        # Note: This increases dataset size; need optimizing
-        self.X = torch.cat([self.X_saved, self.X[top_k_index]])
-        self.Y = torch.cat([self.Y_saved, self.Y[top_k_index]])
+        X_residual = self.X[top_k_index]
+        Y_residual = self.Y[top_k_index]
+
+        self.X_residual_container.append(X_residual)
+        self.Y_residual_container.append(Y_residual)
+
+        return X_residual, Y_residual
+    
+    def apply_residual_based_points(self) -> None:
+        """Incorporate residual-based sampled points into the training set."""
+        if not self.X_residual_container or not self.Y_residual_container:
+            return
         
-        return self.X[top_k_index], self.Y[top_k_index]
+        self.X = torch.cat([self.X] + self.X_residual_container, dim=0)
+        self.Y = torch.cat([self.Y] + self.Y_residual_container, dim=0)
+
+    def clear_residual_based_points(self) -> None:
+        # Clear containers after applying
+        self.X_residual_container.clear()
+        self.Y_residual_container.clear()
 
     # --------------------------------------------------------------------------
     # PDE Processing Helpers
