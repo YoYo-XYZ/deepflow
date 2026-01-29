@@ -261,14 +261,15 @@ class PhysicsAttach:
         self.loss_threshold = loss
         self.top_k_loss_threshold = top_k_loss
 
-    def sampling_residual_based(self, top_k: int, model: nn.Module) -> Tuple[torch.Tensor, torch.Tensor]:
+    def save_coordinates(self) -> None:
+        self.X_saved = self.X.clone()
+        self.Y_saved = self.Y.clone()
+        return self.X_saved, self.Y_saved
+
+    def get_residual_based_points(self, top_k: int) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Adaptive sampling: Add points where the residual loss is highest.
         """
-        # Calculate loss field
-
-        self.calc_loss_field(model)
-        
         if isinstance(self.loss_field, (int, float)): 
             # Loss field not calculated or zero
             return torch.tensor([]), torch.tensor([])
@@ -281,10 +282,10 @@ class PhysicsAttach:
         
         # Append new points to existing dataset
         # Note: This increases dataset size; need optimizing
-        new_X = self.X[top_k_index]
-        new_Y = self.Y[top_k_index]
-
-        return new_X, new_Y
+        self.X = torch.cat([self.X_saved, self.X[top_k_index]])
+        self.Y = torch.cat([self.Y_saved, self.Y[top_k_index]])
+        
+        return self.X[top_k_index], self.Y[top_k_index]
 
     # --------------------------------------------------------------------------
     # PDE Processing Helpers
