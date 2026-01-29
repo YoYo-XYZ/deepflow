@@ -110,6 +110,8 @@ class PINN(nn.Module):
             
             # Apply hard constraints if they exist for this variable
             if self.hard_constraints and key in self.hard_constraints:
+                inputs_dict[0] = inputs_dict.get("x")
+                inputs_dict[1] = inputs_dict.get("y")
                 constraint_mod = self.hard_constraints[key](inputs_dict)
                 val = constraint_mod * val + self.hard_constants[key]
                 
