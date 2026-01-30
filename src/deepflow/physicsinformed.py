@@ -338,4 +338,4 @@ class PhysicsAttach:
     def evaluate(self, model: nn.Module):
         """Initialize evaluation module."""
         from .evaluation import Evaluator # Import inside method to avoid circular dependency if Evaluation imports PhysicsAttach
-        return Evaluator(model, deepcopy(self))
+        return Evaluator(model, self)

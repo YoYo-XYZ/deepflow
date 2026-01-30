@@ -32,7 +32,7 @@ class ProblemDomain():
         
     def __str__(self):
         return f"""number of bound : {[f'{i}: {len(bound.X)}' for i, bound in enumerate(self.bound_list)]}
-        number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list)]}"""
+number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list)]}"""
 
     def sampling_uniform(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
         self.sampling_option = 'uniform'
@@ -151,20 +151,20 @@ class ProblemDomain():
                 lbl = f"{name} {i}\n{cond}" if cond else f"{name} {i}"
                 plt.text(obj.centers[0], obj.centers[1], lbl, ha='center', va='center', **text_kw)
 
-    def show_coordinates(self, display_conditions=False, xlim=None, ylim=None):
+    def show_coordinates(self, display_physics = False, xlim=None, ylim=None):
         plt.figure(figsize=(10,10))
         
         self._plot_items(self.area_list, "Area", lambda o, i: (o.X, o.Y),
             {'s': 2, 'color': 'black', 'alpha': 0.3},
             {'fontsize': 15, 'color': 'navy', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.4, edgecolor='none', pad=1)},
-            show_label=display_conditions)
+            show_label=display_physics)
             
         self._plot_items(self.bound_list, "Bound", lambda o, i: (o.X, o.Y),
             {'s': 2, 'color': 'red', 'alpha': 0.5},
             {'fontsize': 12, 'color': 'darkgreen', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.4, edgecolor='none', pad=1)},
-            show_label=display_conditions)
+            show_label=display_physics)
             
         plt.gca().set_aspect('equal', adjustable='box')
         if xlim: plt.xlim(xlim)

@@ -31,14 +31,14 @@ class Evaluator(Visualizer):
         # or handle the parent init carefully.
         # super().__init__({}) 
 
-    def sampling_line(self, n_points: int, random: bool = False) -> None:
+    def sampling_line(self, n_points: int, scheme: str = 'uniform') -> None:
         """Samples points along a line within the geometry."""
-        self.geometry.sampling_line(n_points, random)
+        self.geometry.sampling_line(n_points, scheme)
         self.postprocess()
 
-    def sampling_area(self, res_list: List[int], random: bool = False) -> None:
+    def sampling_area(self, res_list: List[int], scheme: str = 'uniform') -> None:
         """Samples points within the area of the geometry."""
-        self.geometry.sampling_area(res_list)
+        self.geometry.sampling_area(res_list, scheme)
         self.postprocess()
 
     def define_time(self, range_t: Union[float, int, List[float]], sampling_scheme: str = "uniform") -> None:
