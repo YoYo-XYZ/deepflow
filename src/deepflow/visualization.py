@@ -48,7 +48,9 @@ class Visualizer:
         # Determine the ratio of layout based from X and Y ranges
         X = self.data_dict.get(X)
         Y = self.data_dict.get(Y)
-        try: ratio = np.ptp(Y) / np.ptp(X)
+        try: 
+            with np.errstate(divide='ignore', invalid='ignore'):
+                ratio = np.ptp(Y) / np.ptp(X)
         except Exception: pass
         if ratio == 0: ratio = 0.4/np.ptp(X)
         elif ratio > 1e5: ratio = 0.4*np.ptp(Y)
@@ -147,7 +149,7 @@ class Visualizer:
             items = self._normalize_args(y_axis, default_cmap='black')
 
         # Default orientation vertical for consistency with old behavior
-        fig, axes = self._create_subplots(len(items), 'vertical', subplot_kw=subplot_kw, ratio=1)
+        fig, axes = self._create_subplots(len(items), 'vertical', subplot_kw=subplot_kw, ratio=0.6)
 
         for ax, (key, color) in zip(axes, items):
             if is_3d:
