@@ -31,7 +31,7 @@ class ProblemDomain():
         self.sampling_option = None
         
     def __str__(self):
-        return f"""number of bound : {[f'{i}: {len(bound.X)}' for i, bound in enumerate(self.bound_list)]}\n
+        return f"""number of bound : {[f'{i}: {len(bound.X)}' for i, bound in enumerate(self.bound_list)]}
         number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list)]}"""
 
     def sampling_uniform(self, bound_sampling_res:list=[], area_sampling_res:list=[]):
@@ -70,7 +70,7 @@ class ProblemDomain():
                 bound.sampling_line(bound_candidates_num_list[i], scheme='lhs')
                 bound.process_coordinates()
                 # Add RAR point to saved points
-                bound.get_residual_based_points(top_k=bound_top_k_list[i])
+                bound.get_residual_based_points_topk(top_k=bound_top_k_list[i])
                 bound.apply_residual_based_points()
                 bound.clear_residual_based_points()
                 bound.process_coordinates()
@@ -81,33 +81,30 @@ class ProblemDomain():
                 area.sampling_area(area_candidates_num_list[i], scheme='lhs')
                 area.process_coordinates()
                 # Add RAR point to saved points
-                area.get_residual_based_points(top_k=area_top_k_list[i])
+                area.get_residual_based_points_topk(top_k=area_top_k_list[i])
                 area.apply_residual_based_points()
-                area.clear_residual_based_points()
                 area.process_coordinates()
+                area.clear_residual_based_points()
 
     def sampling_R3(self, bound_sampling_res:list=None, area_sampling_res:list=None):
         self.sampling_option = self.sampling_option + ' + R3'
         if bound_sampling_res:
             for i, bound in enumerate(self.bound_list):
-                bound.save_coordinates()
                 # Sample new candidates
+                bound.get_residual_based_points_threshold()
                 bound.sampling_line(bound_sampling_res[i], scheme='lhs')
-                bound.process_coordinates()
-                # Add RAR point to saved points
-                bound.get_residual_based_points(top_k=bound_sampling_res[i]/2)
                 bound.apply_residual_based_points()
                 bound.process_coordinates()
+                # Add RAR point to saved points
         if area_sampling_res:
             for i, area in enumerate(self.area_list):
-                area.save_coordinates()
                 # Sample new candidates
+                area.get_residual_based_points_threshold()
                 area.sampling_area(area_sampling_res[i], scheme='lhs')
-                area.process_coordinates()
-                # Add RAR point to saved points
-                area.get_residual_based_points(top_k=area_sampling_res[i]/2)
                 area.apply_residual_based_points()
                 area.process_coordinates()
+                # Add RAR point to saved points
+
 #------------------------------------------------------------------------------------------------
     def _format_condition_dict(self, obj, obj_type='Bound'):
         """Helper function to format condition dictionary for display."""

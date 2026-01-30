@@ -1,5 +1,6 @@
 from typing import Dict, Optional, Tuple, Union, Callable, Any
 import warnings
+from copy import deepcopy
 
 import torch
 import torch.nn as nn
@@ -35,6 +36,7 @@ class PhysicsAttach:
         self.T_: Optional[torch.Tensor] = None
         self.X_residual_container: list[torch.Tensor] = []
         self.Y_residual_container: list[torch.Tensor] = []
+        self._amounts_before_add: int = 0
         
         # Data dictionaries
         self.inputs_tensor_dict: Dict[str, Optional[torch.Tensor]] = {}
@@ -220,43 +222,32 @@ class PhysicsAttach:
         """
         Calculate the total loss for the current physics type.
         """
+        residual_field = self.calc_residual_field(model)
+        self.loss = torch.mean(residual_field**2)
+        return self.loss
+
+    def calc_residual_field(self, model: nn.Module) -> Union[int, torch.Tensor]:
+        """
+        Calculate the element-wise loss field (absolute error or residual).
+        """
+        residual_field = 0.0
+
         if self.physics_type in ["BC", "IC"]:
-            loss = 0.0
             # If all conditions are HardConstraints, the loss is structurally zero
             if all(isinstance(cond, HardConstraint) for cond in self.condition_dict.values()):
                 return
 
             pred_dict = self.calc_output(model)
-            
             for key in pred_dict:
-                loss += loss_fn(pred_dict[key], self.target_output_tensor_dict[key])
-
-        elif self.physics_type == "PDE":
-            # PDE Loss
-            self.process_model(model)
-            self.process_pde()
-            loss = self.PDE.calc_loss()
-        return loss
-        
-    def calc_loss_field(self, model: nn.Module) -> Union[int, torch.Tensor]:
-        """
-        Calculate the element-wise loss field (absolute error or residual).
-        """
-        loss_field = 0
-
-        if self.physics_type in ["BC", "IC"]:
-            pred_dict = self.calc_output(model)
-            for key in pred_dict:
-                loss_field += torch.abs(pred_dict[key] - self.target_output_tensor_dict[key])
+                residual_field += torch.abs(pred_dict[key] - self.target_output_tensor_dict[key])
 
         if "PDE" in self.physics_type:
             self.process_model(model)
             self.process_pde()
-            loss_field = self.PDE.calc_residual_field()
+            residual_field = self.PDE.calc_residual_field()
         
-        self.loss_field = loss_field
-        
-        return self.loss_field
+        self.residual_field = residual_field
+        return self.residual_field
 
     def set_threshold(self, loss: float = None, top_k_loss: float = None) -> None:
         """Set loss thresholds for adaptive sampling or convergence checks."""
@@ -272,16 +263,16 @@ class PhysicsAttach:
         self.Y_saved = self.Y.clone()
         return self.X_saved, self.Y_saved
 
-    def get_residual_based_points(self, top_k: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def get_residual_based_points_topk(self, top_k: int) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Adaptive sampling: Add points where the residual loss is highest.
         """
-        if isinstance(self.loss_field, (int, float)): 
+        if isinstance(self.residual_field, (int, float)): 
             # Loss field not calculated or zero
             return torch.tensor([]), torch.tensor([])
 
         # Select top K points with highest error
-        _, top_k_index = torch.topk(self.loss_field, top_k, dim=0)
+        _, top_k_index = torch.topk(self.residual_field, top_k, dim=0)
         
         # Flatten and move to CPU for indexing data
         top_k_index = top_k_index.flatten().cpu()
@@ -294,13 +285,36 @@ class PhysicsAttach:
 
         return X_residual, Y_residual
     
+    def get_residual_based_points_threshold(self, threshold: float = None) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Adaptive sampling: Add points where the residual loss is highest.
+        """
+        if threshold is None: threshold = torch.mean(self.residual_field).item()
+
+        if isinstance(self.residual_field, (int, float)): 
+            # Loss field not calculated or zero
+            return torch.tensor([]), torch.tensor([])
+        
+        mask = (self.residual_field > threshold)
+        if self.X_residual_container:
+            mask[:(self.residual_field.shape[0] - self._amounts_before_add)] = False  # Avoid adding previously added points
+        mask = mask.cpu()
+
+        X_residual = self.X[mask]
+        Y_residual = self.Y[mask]
+
+        self.X_residual_container.append(X_residual)
+        self.Y_residual_container.append(Y_residual)
+
+        return X_residual, Y_residual
+    
     def apply_residual_based_points(self) -> None:
         """Incorporate residual-based sampled points into the training set."""
         if not self.X_residual_container or not self.Y_residual_container:
             return
-        
-        self.X = torch.cat([self.X] + self.X_residual_container, dim=0)
-        self.Y = torch.cat([self.Y] + self.Y_residual_container, dim=0)
+        self._amounts_before_add = len(self.X)
+        self.X = torch.cat(self.X_residual_container + [self.X], dim=0)
+        self.Y = torch.cat(self.Y_residual_container + [self.Y], dim=0)
 
     def clear_residual_based_points(self) -> None:
         # Clear containers after applying
@@ -324,4 +338,4 @@ class PhysicsAttach:
     def evaluate(self, model: nn.Module):
         """Initialize evaluation module."""
         from .evaluation import Evaluator # Import inside method to avoid circular dependency if Evaluation imports PhysicsAttach
-        return Evaluator(model, self)
+        return Evaluator(model, deepcopy(self))
