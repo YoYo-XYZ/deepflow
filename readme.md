@@ -95,7 +95,7 @@ domain.show_setup() # Display the domain setup
 ```python
 # Sample points: [Left, Bottom, Right, Top], [Interior]
 domain.sampling_random([200, 400, 200, 400], [5000])
-domain.show_coordinates(display_conditions=True)
+domain.show_coordinates(display_physics=True)
 ```
 ![alt text](static/quickstart/coord_show.png)
 ### 2. Create and Train the model
@@ -133,6 +133,7 @@ _ =prediction.plot_loss_curve(log_scale=True)
 Explore the [examples](examples)
  directory for real-world use cases, including:
 
+- [Burgers' Equation](examples/burgers_eq)
 - [Steady cylinder flow](examples/cylinder_flow)
 
 Each example includes Jupyter notebooks and data files.
