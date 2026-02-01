@@ -73,14 +73,15 @@ class Visualizer:
             figsize = (fig_length * n_plots, fig_width)
 
         # Create subplots
-        fig, axes = plt.subplots(rows, cols, figsize=figsize, constrained_layout=True, subplot_kw=subplot_kw)
+        fig, axes = plt.subplots(rows, cols, figsize=figsize, subplot_kw=subplot_kw)
         
         # Flatten axes array for easy iteration
         if n_plots == 1:
             axes = [axes]
         else:
             axes = axes.flatten()
-            
+        
+        fig.tight_layout(pad=0.0)
         return fig, axes
 
     def plot_color(self, color_axis: Union[str, List[str], Dict], x_axis:str = 'x', y_axis:str = 'y', s: Union[int, float] = 2, orientation: str = 'vertical') -> plt.Figure:
@@ -102,6 +103,10 @@ class Visualizer:
             ax.set_title(key, fontweight='medium', pad=10, fontsize=13)    
             ax.set_xlabel(x_axis, fontstyle='italic', labelpad=0)
             ax.set_ylabel(y_axis, fontstyle='italic', labelpad=0)
+            
+            # Set limits to remove whitespace
+            ax.set_xlim(self.data_dict[x_axis].min(), self.data_dict[x_axis].max())
+            ax.set_ylim(self.data_dict[y_axis].min(), self.data_dict[y_axis].max())
             ax.set_aspect('equal')
             fig.colorbar(scatter, ax=ax, pad=0.03)
 
@@ -119,16 +124,22 @@ class Visualizer:
 
         fig, axes = self._create_subplots(1, orientation)
 
+        position_array = np.random.permutation(len(self.data_dict[x_axis]))
+
         for ax in axes:
             # Plot
             c = (self.data_dict[u]**2 + self.data_dict[v]**2)**0.5
             scatter = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], s=s, c=c, cmap=cmap, marker='s')
-            arrow = ax.quiver(self.data_dict[x_axis][10::11], self.data_dict[y_axis][10::11], self.data_dict[u][10::11], self.data_dict[v][10::11], color='k', scale=scale)
+            arrow = ax.quiver(self.data_dict[x_axis][position_array][10::11], self.data_dict[y_axis][position_array][10::11], self.data_dict[u][position_array][10::11], self.data_dict[v][position_array][10::11], color='white', scale=scale)
             
             # Styling
             ax.set_title(f"Vector magnitude of {u} and {v}", fontweight='medium', pad=10, fontsize=13)    
             ax.set_xlabel(x_axis, fontstyle='italic', labelpad=0)
             ax.set_ylabel(y_axis, fontstyle='italic', labelpad=0)
+            
+            # Set limits to remove whitespace
+            ax.set_xlim(self.data_dict[x_axis].min(), self.data_dict[x_axis].max())
+            ax.set_ylim(self.data_dict[y_axis].min(), self.data_dict[y_axis].max())
             ax.set_aspect('equal')
             fig.colorbar(scatter, ax=ax, pad=0.03)
 
@@ -155,7 +166,7 @@ class Visualizer:
             if is_3d:
                 # 3D Scatter Plot
                 scatter = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], self.data_dict[key], c=self.data_dict[key], cmap=color, s=2)
-                ax.set(xlabel={x_axis}, ylabel={y_axis})
+                ax.set(xlabel=x_axis, ylabel=y_axis)
                 ax.set_title(f'3D Scatter Plot of {key}')
                 ax.dist = 8 # Compact view
                 colorbar = fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
