@@ -139,19 +139,20 @@ class Evaluator(Visualizer):
         min_val = np.min([np.min(c) for c in color_list])
 
         # Initialize figure
-        scatter = ax.scatter(x = self.data_dict[x_axis], y = self.data_dict[y_axis], c=color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, s=2)
+        plot = ax.tripcolor(self.data_dict[x_axis], self.data_dict[y_axis], color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, shading = 'gouraud')
+
         title = ax.set_title(f'{color_axis} - Time: {time_list[0]:.3f}')
         ax.set_xlabel(x_axis)
         ax.set_ylabel(y_axis)
         ax.set_aspect('equal')
         
         # Add colorbar
-        ax.colorbar(scatter, ax=ax)
+        ax.colorbar(plot, ax=ax)
         
         def animate(frame):
-            scatter.set_array(color_list[frame])
+            plot.set_array(color_list[frame].ravel())
             title.set_text(f'{color_axis} - Time: {time_list[frame]:.3f}')
-            return scatter, title
+            return plot, title
 
         ani = animation.FuncAnimation(fig, animate, frames=len(time_list), interval=frame_interval, blit=True)
         plt.show()
