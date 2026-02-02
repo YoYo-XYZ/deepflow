@@ -154,17 +154,17 @@ number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list
                 lbl = f"{name} {i}\n{cond}" if cond else f"{name} {i}"
                 ax.text(obj.centers[0], obj.centers[1], lbl, ha='center', va='center', **text_kw)
     def show_coordinates(self, display_physics = False, xlim=None, ylim=None):
-        fig, ax = plt.subplots(refwidth=5)
+        fig, ax = plt.subplots(refwidth=7)
         
         self._plot_items(ax, self.area_list, "Area", lambda o, i: (o.X, o.Y),
             {'s': 2, 'color': 'black', 'alpha': 0.3},
-            {'fontsize': 15, 'color': 'navy', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
+            {'fontsize': 10, 'color': 'navy', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.4, edgecolor='none', pad=1)},
             show_label=display_physics)
             
         self._plot_items(ax, self.bound_list, "Bound", lambda o, i: (o.X, o.Y),
             {'s': 2, 'color': 'red', 'alpha': 0.5},
-            {'fontsize': 12, 'color': 'darkgreen', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
+            {'fontsize': 10, 'color': 'darkgreen', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.4, edgecolor='none', pad=1)},
             show_label=display_physics)
             
@@ -174,7 +174,7 @@ number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list
         plt.show()
 
     def show_setup(self, bound_sampling_res:list=None, area_sampling_res:list=None, xlim=None, ylim=None):
-        fig, ax = plt.subplots(refwidth=5)
+        fig, ax = plt.subplots(refwidth=7, grid = False)
         
         if bound_sampling_res is None:
             bound_sampling_res = [int(800*(b.ranges[b.ax][1] - b.ranges[b.ax][0])) for b in self.bound_list]
@@ -191,11 +191,11 @@ number of area : {[f'{i}: {len(area.X)}' for i, area in enumerate(self.area_list
 
         self._plot_items(ax, self.area_list, "Area", get_area_xy,
             {'s': 5, 'color': 'lightgrey', 'alpha': 1, 'marker': 's'},
-            {'fontsize': 15, 'color': 'navy', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
+            {'fontsize': 10, 'color': 'navy', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.2, edgecolor='none', pad=1)})
         self._plot_items(ax, self.bound_list, "Bound", get_bound_xy,
             {'s':5, 'color': 'red', 'alpha': 0.2},
-            {'fontsize': 12, 'color': 'darkgreen', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
+            {'fontsize': 10, 'color': 'darkgreen', 'fontstyle': 'italic', 'fontweight': 'bold', 'family': 'serif', 
              'bbox': dict(facecolor='white', alpha=0.4, edgecolor='none', pad=1)})
              
         ax.set_aspect('equal', adjustable='box')

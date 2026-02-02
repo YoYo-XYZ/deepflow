@@ -121,13 +121,13 @@ class Evaluator(Visualizer):
     def __str__(self):
         return f"Available data keys: {tuple(self.data_dict.keys())}"
     
-    def plot_animate(self, color_axis:str, x_axis: str = 'x', y_axis: str = 'y', cmap = 'viridis', range_t=None, dt=None, frame_interval = 10):
+    def plot_animate(self, color_axis:str, x_axis: str = 'x', y_axis: str = 'y', cmap = 'viridis', range_t=None, dt=None, frame_interval = 10, plot_type: str = 'scatter', s = 6) -> Any:
         """
         Creates an animation over time for the specified key(s).
         """
         import matplotlib.animation as animation
 
-        fig, ax = plt.subplot(refwidth = 4)
+        fig, ax = plt.subplot(refwidth = 4, grid=False)
 
         # Prepare data to animate
         color_list = []
@@ -139,7 +139,12 @@ class Evaluator(Visualizer):
         min_val = np.min([np.min(c) for c in color_list])
 
         # Initialize figure
-        plot = ax.tripcolor(self.data_dict[x_axis], self.data_dict[y_axis], color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, shading = 'gouraud')
+        if plot_type == 'scatter':
+            plot = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], c=color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, marker='s', s = s)
+        elif plot_type == 'tripcolor':
+            plot = ax.tripcolor(self.data_dict[x_axis], self.data_dict[y_axis], color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, shading = 'gouraud')
+        elif plot_type == 'contourf':
+            plot = ax.tricontourf(self.data_dict[x_axis], self.data_dict[y_axis], color_list[0], cmap=cmap, vmin=min_val, vmax=max_val, levels=100)
 
         title = ax.set_title(f'{color_axis} - Time: {time_list[0]:.3f}')
         ax.set_xlabel(x_axis)

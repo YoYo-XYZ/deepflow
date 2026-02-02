@@ -12,7 +12,7 @@ class Visualizer:
     Main visualization class for processing data dictionaries.
     Refactored for simplicity and maintainability.
     """
-    refwidth_default = 5
+    refwidth_default = 7
     cmap_default = 'viridis'
     color_default = 'black'
 
