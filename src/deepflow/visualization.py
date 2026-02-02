@@ -48,7 +48,7 @@ class Visualizer:
     # Modern alias
     plot_scatter = plot_color
 
-    def plot(self, z_axis: str = None, x_axis:str = 'x', y_axis:str = 'y', return_ax: bool = False) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
+    def plot(self, z_axis: str = None, x_axis:str = 'x', y_axis:str = 'y', return_ax: bool = False, color = None) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
         """
         General plotting method.
         If axis='xy': 3D surface plot.
@@ -57,14 +57,14 @@ class Visualizer:
         if z_axis is None:
             fig, ax = self._create_subplot()
             # Line Plot
-            ax.plot(self.data_dict[x_axis], self.data_dict[y_axis], color=self.color_default)
+            ax.plot(self.data_dict[x_axis], self.data_dict[y_axis], color=self.color_default if color is None else color)
             ax.grid(True)
             ax.set_xlabel(x_axis)
             ax.set_ylabel(y_axis)
         else:
             fig, ax = plt.subplot(refwidth = self.refwidth_default, proj = '3d')
             # 3D Scatter Plot
-            scatter = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], self.data_dict[z_axis], c=self.data_dict[z_axis], cmap=self.cmap_default, s=3)
+            scatter = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], self.data_dict[z_axis], c=self.data_dict[z_axis], cmap=self.cmap_default if color is None else color, s=3)
             ax.set(xlabel=x_axis, ylabel=y_axis)
             ax.set_title(f'3D Scatter Plot of {z_axis}')
             colorbar = fig.colorbar(scatter, ax=ax)
