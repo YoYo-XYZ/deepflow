@@ -10,7 +10,8 @@ DeepFlow is a user-friendly framework for solving partial differential equations
 
 ## Table of Contents
 
-- [**Features**](#features)
+- [**Key Features**](#features)
+- [Current Implementations](#current-implementations)
 - [**Installation**](#installation)
 - [Requirements](#requirements)
 - [**Quick Start**](#quick-start)
@@ -21,17 +22,18 @@ DeepFlow is a user-friendly framework for solving partial differential equations
 
 ## Key Features
 
-- ⟁ **Physics-Attached Geometry**: **AUTO GENERATE TRAINING DATA** by explicitly attach physics and NN model to geometries.
+![promo](static/promo.png)
+
+- ⟁ **Physics-Attached Geometry**: **AUTO GENERATE TRAINING DATA** by explicitly attach physics and neural network to geometries.
 - 🔧 **CFD-Solver Style**: Straightforward workflow similar to CFD software.
 - 📊 **Built-in Visualization**: Tools to evaluate and plot results.
 - 🚀 **GPU Acceleration**: Enable GPU for faster training.
 - **Flexible Domain Definition**: Easily define complex 2D geometries.
-![](static/deepflow_workflow.svg)
 
 ## Current Implementations
 - **Supported problems**: solving **forward** partial differential equations (PDEs)
-    - 2D imcompressible Navier-Stokes equations, 2D Fourier Heat equation
-- **Sampling methods**: Uniform, Random, Latin Hypercube Sampling (LHS), RAR-G [[0]](https://arxiv.org/abs/2207.10289), R3 [[1]](https://arxiv.org/abs/2207.02338)
+    - transient & steady 2D imcompressible Navier-Stokes equations, 2D Fourier Heat equation, Burgers' equation
+- **Sampling methods**: Uniform, Random, Latin Hypercube Sampling, RAR-G [[0]](https://arxiv.org/abs/2207.10289), R3 [[1]](https://arxiv.org/abs/2207.02338)
 - **2D Geometries**: Custom functions, Rectangle, Circle, Polygon, and combinations & subtractions.
 - **Hard Boundary Conditions**: Automatic Hard BC w.r.t. to geometry.
 - **Neural Network Architectures**: Fully connected feedforward networks (FNN).
@@ -61,9 +63,11 @@ pip install -e .
 - NumPy >= 1.19.0
 - Matplotlib >= 3.3.0
 - SymPy >= 1.5.0
+- SciPy >= 1.5.0
+- Ultrplot >= 1.0.0
 
 ## Quick Start
-
+![](static/deepflow_workflow.svg)
 This example demonstrates how to simulate Steady channel flow **under 20 lines of code!** We recommend using a Python notebook (`.ipynb`) for interactive experience.
 
 ### 1. Define the Geometry and Physics
@@ -131,10 +135,12 @@ _ =prediction.plot_loss_curve(log_scale=True)
 ## Examples
 
 Explore the [examples](examples)
- directory for real-world use cases, including:
+ directory for real use cases, including:
 
+- [Steady flow around a cylinder](examples/cylinder_flow_steady)
+- [Lid-driven cavity flow](examples/cavity_flow_steady)
 - [Burgers' Equation](examples/burgers_eq)
-- [Steady cylinder flow](examples/cylinder_flow)
+- [Time-dependent Fourier Heat Equation](examples/heat_eq)
 
 Each example includes Jupyter notebooks and data files.
 
@@ -144,9 +150,11 @@ Feel free to submit a Pull Request. For major changes, open an issue first to di
 
 ## DeepFlow Milestones
 
-1. Complete support for **time-dependent solutions**
-2. Ability to define **custom PDEs**
-3. Enhanced customization options in **visualization tools**
+1. Define custom PDE
+2. Inverse problems PDE
+3. 3D Geometries
+4. More sampling methods
+5. More neural network architectures (e.g., CNN, RNN)
 
 ## License
 
