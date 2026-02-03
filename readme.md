@@ -124,10 +124,10 @@ prediction = domain.area_list[0].evaluate(model1_best)
 prediction.sampling_area([500, 100])
 
 # Plot Velocity Field
-_ = prediction.plot_color({'u': 'rainbow'})
+_ = prediction.plot_color('u')
 
 # Plot Training Loss
-_ =prediction.plot_loss_curve(log_scale=True)
+_ =prediction.plot_loss_curve()
 ```
 ![alt text](static/quickstart/flow_field.png)
 ![alt text](static/quickstart/loss_curve.png)

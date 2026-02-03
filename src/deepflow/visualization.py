@@ -85,7 +85,7 @@ class Visualizer:
             return fig, ax
         return fig
 
-    def plot_loss_curve(self, log_scale: bool = False, 
+    def plot_loss_curve(self, log_scale: bool = True, 
                         start: int = 0, end: Optional[int] = None, 
                         keys: List[str] = ['total_loss', 'bc_loss', 'pde_loss'], return_ax: bool = False) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
         """
