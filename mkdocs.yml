@@ -27,5 +27,10 @@ markdown_extensions:
 nav:                           # Your menu structure – edit as you add pages
   - Home: index.md
   - Quick Start: quickstart.md
-  - Examples: examples.md
+  - Examples:
+    - Overview: examples.md
+    - 1D Burgers Equation: burgers_eq.md
+    - Steady Cavity Flow: cavity_flow.md
+    - Steady Cylinder Flow: cylinder_flow.md
+    - 2D Heat Equation: heat_eq.md
   - API: reference.md

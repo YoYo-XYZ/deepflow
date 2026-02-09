@@ -27,7 +27,7 @@ domain.show_setup()
 
 
     
-![png](burgers_eq_files/burgers_eq_4_0.png)
+![png](img/examples/burgers_eq/burgers_eq_4_0.png)
     
 
 
@@ -57,7 +57,7 @@ domain.show_coordinates(display_physics=True)
 
 
     
-![png](burgers_eq_files/burgers_eq_9_0.png)
+![png](img/examples/burgers_eq/burgers_eq_9_0.png)
     
 
 
@@ -147,7 +147,7 @@ domain.show_coordinates(display_physics=False)
 
 
     
-![png](burgers_eq_files/burgers_eq_16_0.png)
+![png](img/examples/burgers_eq/burgers_eq_16_0.png)
     
 
 
@@ -176,25 +176,25 @@ _ = prediction.plot_loss_curve(log_scale=True)
 
 
     
-![png](burgers_eq_files/burgers_eq_20_1.png)
+![png](img/examples/burgers_eq/burgers_eq_20_1.png)
     
 
 
 
     
-![png](burgers_eq_files/burgers_eq_20_2.png)
+![png](img/examples/burgers_eq/burgers_eq_20_2.png)
     
 
 
 
     
-![png](burgers_eq_files/burgers_eq_20_4.png)
+![png](img/examples/burgers_eq/burgers_eq_20_4.png)
     
 
 
 
     
-![png](burgers_eq_files/burgers_eq_20_5.png)
+![png](img/examples/burgers_eq/burgers_eq_20_5.png)
     
 
 
@@ -210,6 +210,6 @@ _ = prediction.plot(y_axis = 'u')
 
 
     
-![png](burgers_eq_files/burgers_eq_22_0.png)
+![png](img/examples/burgers_eq/burgers_eq_22_0.png)
     
 
