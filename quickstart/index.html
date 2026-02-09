@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#1-define-the-geometry-and-physics" class="md-skip">
+        <a href="#quick-start" class="md-skip">
           Skip to content
         </a>
       
@@ -343,6 +343,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -359,6 +377,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-define-the-geometry-and-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Define the Geometry and Physics
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -438,6 +486,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-define-the-geometry-and-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Define the Geometry and Physics
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -456,8 +523,9 @@
   
 
 
+<h1 id="quick-start">Quick Start</h1>
 <p>This example demonstrates how to simulate Steady channel flow <strong>under 20 lines of code!</strong> We recommend using a Python notebook (<code>.ipynb</code>) for interactive experience.</p>
-<h1 id="1-define-the-geometry-and-physics">1. Define the Geometry and Physics</h1>
+<h2 id="1-define-the-geometry-and-physics">1. Define the Geometry and Physics</h2>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">deepflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">df</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Define the area and bounds</span>
@@ -466,7 +534,7 @@
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">domain</span><span class="o">.</span><span class="n">show_setup</span><span class="p">()</span> <span class="c1"># Display the domain setup</span>
 </code></pre></div>
-<img alt="alt text" src="../static/quickstart/setup_show.png" />
+<img alt="alt text" src="../img/static/quickstart/setup_show.png" />
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Define Boundary Conditions</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">domain</span><span class="o">.</span><span class="n">bound_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">define_bc</span><span class="p">({</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>  <span class="c1"># Inflow: u=1</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">domain</span><span class="o">.</span><span class="n">bound_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">define_bc</span><span class="p">({</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>  <span class="c1"># Wall: No slip</span>
@@ -478,12 +546,12 @@
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">domain</span><span class="o">.</span><span class="n">show_setup</span><span class="p">()</span> <span class="c1"># Display the domain setup</span>
 </code></pre></div>
-<img alt="alt text" src="../static/quickstart/cond_show.png" /></p>
+<img alt="alt text" src="../img/static/quickstart/cond_show.png" /></p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Sample points: [Left, Bottom, Right, Top], [Interior]</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">domain</span><span class="o">.</span><span class="n">sampling_random</span><span class="p">([</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">],</span> <span class="p">[</span><span class="mi">5000</span><span class="p">])</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">domain</span><span class="o">.</span><span class="n">show_coordinates</span><span class="p">(</span><span class="n">display_physics</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<img alt="alt text" src="../static/quickstart/coord_show.png" /></p>
+<img alt="alt text" src="../img/static/quickstart/coord_show.png" /></p>
 <h1 id="2-create-and-train-the-model">2. Create and Train the model</h1>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Initialize the PINN model</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">model0</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">PINN</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -505,8 +573,8 @@
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1"># Plot Training Loss</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">_</span> <span class="o">=</span><span class="n">prediction</span><span class="o">.</span><span class="n">plot_loss_curve</span><span class="p">()</span>
 </code></pre></div>
-<img alt="alt text" src="../static/quickstart/flow_field.png" />
-<img alt="alt text" src="../static/quickstart/loss_curve.png" /></p>
+<img alt="alt text" src="static/quickstart/flow_field.png" />
+<img alt="alt text" src="static/quickstart/loss_curve.png" /></p>
 
 
 
