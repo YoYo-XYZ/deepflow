@@ -9,6 +9,10 @@
       
       
       
+        <link rel="prev" href="../examples/">
+      
+      
+        <link rel="next" href="../cavity_flow/">
       
       
         
@@ -19,7 +23,7 @@
     
     
       
-        <title>1D Burgers Equation DEMO code - DeepFlow</title>
+        <title>1D Burgers Equation - DeepFlow</title>
       
     
     
@@ -94,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              1D Burgers Equation DEMO code
+              1D Burgers Equation
             
           </span>
         </div>
@@ -217,18 +221,21 @@
   
   
   
-  
-    <li class="md-tabs__item">
-      <a href="../examples.md" class="md-tabs__link">
-        
+    
   
   
     
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../examples/" class="md-tabs__link">
+          
+  
   
   Examples
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -238,7 +245,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../reference.md" class="md-tabs__link">
+      <a href="../reference/" class="md-tabs__link">
         
   
   
@@ -354,11 +361,32 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../examples.md" class="md-nav__link">
+  
+    
+    
+    
+    
+      
         
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
   
   
   <span class="md-ellipsis">
@@ -372,7 +400,299 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1D Burgers Equation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1D Burgers Equation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-define-geometry-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Define Geometry Domain
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-define-physics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Define Physics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Define Physics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2-generate-training-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Generate Training Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-train-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Train the Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Visualization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Visualization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-visualize-pde-area" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Visualize PDE area
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-visualize-u-at-y-075" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Visualize u at y = 0.75
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cavity_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Steady Cavity Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cylinder_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Steady Cylinder Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../heat_eq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2D Heat Equation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -384,7 +704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference.md" class="md-nav__link">
+      <a href="../reference/" class="md-nav__link">
         
   
   
@@ -556,7 +876,7 @@
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">domain</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">area_list</span><span class="p">,</span> <span class="n">line_ic</span><span class="p">,</span> <span class="n">line_bc1</span><span class="p">,</span> <span class="n">line_bc2</span><span class="p">)</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">domain</span><span class="o">.</span><span class="n">show_setup</span><span class="p">()</span>
 </code></pre></div>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_4_0.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_4_0.png" /></p>
 <h2 id="2-define-physics">2. Define Physics</h2>
 <p>Define the Burgers eq (spatial version) apply boundary conditions.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Define PDE</span>
@@ -572,7 +892,7 @@
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">domain</span><span class="o">.</span><span class="n">sampling_lhs</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">],</span> <span class="p">[</span><span class="mi">4000</span><span class="p">])</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">domain</span><span class="o">.</span><span class="n">show_coordinates</span><span class="p">(</span><span class="n">display_physics</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_9_0.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_9_0.png" /></p>
 <h3 id="3-train-the-model">3. Train the Model</h3>
 <p>Define the resampling scheme during training. <a href="https://arxiv.org/abs/2207.02338">R3</a> scheme is recommended.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">do_in_adam</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
@@ -640,7 +960,7 @@ Training interrupted by user.
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">domain</span><span class="o">.</span><span class="n">show_coordinates</span><span class="p">(</span><span class="n">display_physics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_16_0.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_16_0.png" /></p>
 <h2 id="4-visualization">4. Visualization</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Evaluate the best model</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">prediction</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">area_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model2</span><span class="p">)</span>
@@ -654,17 +974,17 @@ Training interrupted by user.
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">_</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;pde_residual&#39;</span><span class="p">)</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">_</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">plot_loss_curve</span><span class="p">(</span><span class="n">log_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_20_1.png" /></p>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_20_2.png" /></p>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_20_4.png" /></p>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_20_5.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_20_1.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_20_2.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_20_4.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_20_5.png" /></p>
 <h3 id="42-visualize-u-at-y-075">4.2 Visualize u at y = 0.75</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">line</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">line_horizontal</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">range_x</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">prediction</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model2</span><span class="p">)</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">prediction</span><span class="o">.</span><span class="n">sampling_line</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">_</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_axis</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span><span class="p">)</span>
 </code></pre></div>
-<p><img alt="png" src="burgers_eq_files/burgers_eq_22_0.png" /></p>
+<p><img alt="png" src="../img/examples/burgers_eq/burgers_eq_22_0.png" /></p>
 
 
 
