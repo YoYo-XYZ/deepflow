@@ -139,15 +139,15 @@ class PINN(nn.Module):
                 # Take constant from the first bound
                 self.hard_constants[key] = relevant_bounds[0].condition_dict[key].constant
 
-                # Create closure for the constraint function
-                def make_constraint_func(coords):
+                # Create closure for the constraint functiont(key)
+                def constraint_func(coords, bounds = relevant_bounds):
                     result = 1.0
-                    for bound in relevant_bounds:
+                    for bound in bounds:
                         zero_func = HardConstraint.define_zero_func(bound)
                         result *= zero_func(coords)
                     return result
 
-                self.hard_constraints[key] = make_constraint_func
+                self.hard_constraints[key] = constraint_func
 
     def _record_loss(self, loss_dict: Dict[str, torch.Tensor]):
         """Helper to append current losses to history."""
@@ -276,7 +276,7 @@ class PINN(nn.Module):
                      print(f"Stop: Loss {total_loss_num:.5f} < Threshold {threshold_loss}")
                      break
                 
-                do_between_epochs(epoch, model) if do_between_epochs else None
+                if do_between_epochs: do_between_epochs(epoch, model)
 
         except KeyboardInterrupt:
             print('Training interrupted by user.')
