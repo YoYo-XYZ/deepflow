@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Union
 
 try:
     import ultraplot as plt
@@ -26,14 +26,11 @@ class Visualizer:
         fig, ax = plt.subplot(refwidth = (self.refwidth_default if ref_width is None else ref_width), refheight = ref_height)
         return fig, ax
 
-    def plot_color(self, color_axis:str, x_axis:str = 'x', y_axis:str = 'y', cmap = 'viridis', s: Union[int, float] = 2, orientation: str = 'vertical', ax: Optional[Any] = None, return_ax: bool = False) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
+    def plot_color(self, color_axis:str, x_axis:str = 'x', y_axis:str = 'y', cmap = 'viridis', s: Union[int, float] = 2, orientation: str = 'vertical', return_ax: bool = False) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
         """
         Creates scatter plots (heatmap style) for the specified keys.
         """
-        if ax is None:
-            fig, ax = self._create_subplot()
-        else:
-            fig = ax.figure
+        fig, ax = self._create_subplot()
 
         # Plot
         scatter = ax.scatter(self.data_dict[x_axis], self.data_dict[y_axis], s=s, c=self.data_dict[color_axis], cmap=cmap, marker='s')
@@ -132,14 +129,11 @@ class Visualizer:
             return fig, ax
         return fig
     
-    def plot_streamline(self, u:str, v:str, x_axis:str = 'x', y_axis:str = 'y', cmap = 'viridis', levels = 100, ax: Optional[Any] = None, return_ax: bool = False) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
+    def plot_streamline(self, u:str, v:str, x_axis:str = 'x', y_axis:str = 'y', cmap = 'viridis', levels = 100, return_ax: bool = False) -> Union[plt.Figure, Tuple[plt.Figure, object]]:
         """
         Creates scatter plots (heatmap style) for the specified keys.
         """
-        if ax is None:
-            fig, ax = self._create_subplot()
-        else:
-            fig = ax.figure
+        fig, ax = self._create_subplot()
 
         (U, V), (X, Y) = self._interpolate(u, v , x_key = x_axis, y_key = y_axis, points=2000)
 
