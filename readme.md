@@ -7,7 +7,7 @@
 
 ![DeepFlow Logo](static/logo_name_deepflow.svg)
 
-DeepFlow is a user-friendly framework for solving PDEs like the Navier-Stokes equations, using **Physics-Informed Neural Networks (PINNs)**. It provides a CFD-solver-style workflow to make PINN-based simulations accessible and straightforward.
+DeepFlow is a user-friendly framework for solving PDEs, with a focus on fluid dynamics including the Navier–Stokes equations, using **Physics-Informed Neural Networks (PINNs)**. It provides a CFD-solver-style workflow that makes PINN-based simulations accessible and straightforward.
 
 ## Table of Contents
 
