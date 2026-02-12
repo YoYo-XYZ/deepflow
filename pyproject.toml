@@ -10,7 +10,16 @@ authors = [{ name = "Thammatorn Jamraschai", email = "thammatorn.j@gmail.com" }]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.8"
-keywords = ["PINNs", "neural-networks", "fluid-dynamics", "PDEs", "physics-informed", "deep-learning"]
+keywords = ["PINNs", "neural-networks", "fluid-dynamics", "PDEs", "physics-informed", "deep-learning", "machine-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Mathematics"
+]
 urls = {Homepage = "https://github.com/YoYo-XYZ/deepflow"}
 dependencies = [
     "torch>=1.7.0",
