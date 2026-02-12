@@ -246,8 +246,8 @@ anim.save("animation.gif")
 
 
     
-![png](img/examples/channel_flow_transient_files/channel_flow_transient_27_0.png)
-    
+![png](img/examples/channel_flow_transient_files/animation.gif)
+
 
 
 ## 4.3 Visualize Neural Network data
