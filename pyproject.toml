@@ -7,14 +7,13 @@ name = "deepflow"
 version = "0.1.2"
 description = "Physics-Informed Neural Networks for Fluid Dynamics"
 authors = [{ name = "Thammatorn Jamraschai", email = "thammatorn.j@gmail.com" }]
-readme = "README.md"
-license = "MIT"
+readme = "readme.md"
+license = {text = "MIT License"}
 requires-python = ">=3.8"
 keywords = ["PINNs", "neural-networks", "fluid-dynamics", "PDEs", "physics-informed", "deep-learning", "machine-learning"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Physics",
