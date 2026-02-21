@@ -58,7 +58,7 @@ class NN(ABC, nn.Module):
         self.hard_constants: Optional[Dict] = None
 
         self._init_history()
-        self._build_network()
+        #self._build_network()
 
     @abstractmethod
     def _build_network(self):
@@ -291,8 +291,10 @@ class FNN(NN):
         hidden_layer: List[int] = [50, 50, 50, 50],
         activation: nn.Module = nn.Tanh()
     ):
+        super().__init__(input_vars, output_vars)
+        self.activation = activation
         self.hidden_layer = hidden_layer
-        super().__init__(input_vars, output_vars, activation)
+        self._build_network()
 
     def _build_network(self) -> None:
         """Builds the feedforward neural network architecture."""
@@ -305,7 +307,18 @@ class FNN(NN):
 
         self.net = nn.Sequential(*layers)
 
-from pennylane import qml
+class PINN(FNN):
+    def __init__(
+        self,
+        input_vars: Optional[List[str]] = None, 
+        output_vars: Optional[List[str]] = None,
+        width: int = 32,
+        length: int = 4,
+        activation: nn.Module = nn.Tanh()
+    ):
+        super().__init__(input_vars, output_vars, [width for _ in range(length)], activation)
+
+import pennylane as qml
 class QNN(NN):
     def __init__(
         self,
@@ -317,12 +330,14 @@ class QNN(NN):
         hidden_layer_post: Optional[List[int]] = None,
         activation: nn.Module = nn.Tanh()
     ):
+        super().__init__(input_vars, output_vars)
         self.nqubits = nqubits
         self.q_depth = q_depth
         self.hidden_layer_pre = hidden_layer_pre if hidden_layer_pre is not None else []
         self.hidden_layer_post = hidden_layer_post if hidden_layer_post is not None else []
         self.activation = activation
-        super().__init__(input_vars, output_vars, activation)
+        self._build_network()
+    
     def _qnn_setup(self):
 
         qml_device = qml.device("default.qubit", wires=self.nqubits)
